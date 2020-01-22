@@ -2,9 +2,8 @@ import re
 import cmd_obj
 
 
-# noinspection SpellCheckingInspection
 class Interpreter:
-    # This class handles verification and execution of allowable user-input commands
+    # This class handles parsing and analysis of user input
     def __init__(self, board, turn_handler):
         self.turn_handler = turn_handler
         self.commands = cmd_obj.Commands(board, turn_handler)
@@ -47,10 +46,12 @@ class Interpreter:
 
     @staticmethod
     def is_symbol(expr):
+        # Note that all numbers are also symbols, but being a number takes higher precedence
         return isinstance(expr, str) and expr.isalnum()
 
     @staticmethod
     def get_number_value(expr):
+        # Get number value as int if possible, or float if not
         f = float(expr)
         i = int(f)
         return i if i == f else f
@@ -89,12 +90,15 @@ class Interpreter:
 
     @staticmethod
     def execute_multiple(exprs):
+        # Execute all commands, return the value of the last one only
         res = None
         for expr in exprs:
             res = expr()
         return res
 
     def get_symbol_value(self, expr):
+        # Defined symbol values are saved on a per-unit basis, so the value is always taken from the dictionary
+        # of the "current unit", which is determined by the turn handler
         if expr in self.turn_handler.current_unit.var_data:
             return self.turn_handler.current_unit.var_data[expr]
         raise Exception("Undefined symbol " + expr)

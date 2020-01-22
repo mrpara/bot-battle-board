@@ -27,7 +27,7 @@ class Unit:
             self.spawn_timer -= 1
             if self.spawn_timer == 0:
                 self.board.spawn_in_adjacent_location(self.player_id, self.loc)
-                print(self.board.num_allies_around_unit(self.id))
+                print(self.board.num_allies_around_unit(self))
                 self.can_act = True
 
     def decrement_hp(self):
@@ -36,5 +36,5 @@ class Unit:
             self.kill()
 
     def kill(self):
-        self.board.despawn_unit(self.id)
+        self.board.despawn_unit(self)
         print("Unit " + str(self.id) + " destroyed")

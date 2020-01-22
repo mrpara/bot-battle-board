@@ -21,7 +21,7 @@ for i in range(5000):
     intr.turn_handler.current_unit().on_new_turn()
     a()
     intr.turn_handler.end_turn()
-    print(tst_board.board_matrix)
+    tst_board.print_board()
 
 # print(intr.board.current_unit().var_data)
 

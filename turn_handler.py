@@ -13,6 +13,9 @@ class TurnHandler:
     def current_unit(self):
         return self.queue[-1]
 
+    def current_player(self):
+        return self.current_unit().player_id
+
     def start_turn(self):
         self.can_act = True
         self.turn_number += 1
