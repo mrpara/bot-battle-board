@@ -1,3 +1,5 @@
+prnt(num_adjacent_allies())
+prnt(num_adjacent_enemies())
 iff(eq(get_unit_id(), 1), 
 	spawn(), 
 	move())

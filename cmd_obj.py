@@ -49,6 +49,12 @@ class Commands:
         print("Setting spawn for unit " + str(self.turn_handler.current_unit().id) + " belonging to player " +
               str(self.turn_handler.current_unit().player_id) + " in 3 turns")
 
+    def num_adjacent_allies(self):
+        return self.board.num_allies_around_unit(self.turn_handler.current_unit().id)
+
+    def num_adjacent_enemies(self):
+        return self.board.num_enemies_around_unit(self.turn_handler.current_unit().id)
+
     @staticmethod
     def add(a, b):
         return a + b

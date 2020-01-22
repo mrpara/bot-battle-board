@@ -10,7 +10,7 @@ class Unit:
         self.player_id = player_id
         self.var_data = {}
         self.loc = initial_loc
-        self.hp = 5
+        self.hp = 50
         self.spawn_timer = 0
         self.can_act = True
 
@@ -27,6 +27,7 @@ class Unit:
             self.spawn_timer -= 1
             if self.spawn_timer == 0:
                 self.board.spawn_in_adjacent_location(self.player_id, self.loc)
+                print(self.board.num_allies_around_unit(self.id))
                 self.can_act = True
 
     def decrement_hp(self):

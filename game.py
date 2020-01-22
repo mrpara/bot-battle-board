@@ -14,7 +14,7 @@ print(test_script)
 
 #get_unit_id()
 a = intr.analyze(test_script)
-for i in range(50):
+for i in range(5000):
     print("Turn number " + str(intr.turn_handler.turn_number))
     print("Acting unit: " + str(intr.turn_handler.current_unit().id))
     intr.turn_handler.start_turn()
@@ -25,7 +25,7 @@ for i in range(50):
 
 # print(intr.board.current_unit().var_data)
 
-# intr.board.start_turn()
+# intr.board.start_turn()0
 
 # b = intr.analyze("define(x, 2) define(g, 5)")
 # a = intr.analyze("define(h, 7)")
