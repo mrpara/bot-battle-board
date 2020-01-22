@@ -76,6 +76,12 @@ class Commands:
     def num_total_enemies(self):
         return self.board.num_total_enemies(self.turn_handler.current_player())
 
+    def distance_from_closest_ally(self):
+        return self.board.distance_from_closest_ally(self.turn_handler.current_unit())
+
+    def distance_from_closest_enemy(self):
+        return self.board.distance_from_closest_enemy(self.turn_handler.current_unit())
+
     #########################################
     # Arithmetic and general commands
     #########################################

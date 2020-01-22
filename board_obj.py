@@ -99,7 +99,7 @@ class Board:
     def print_board(self):
         output_mtx = []
         for row in self.board:
-            output_mtx.append(['X' if elem is None else elem.player_id for elem in row])
+            output_mtx.append(['X' if elem is None else elem.id for elem in row])
         s = [[str(e) for e in row] for row in output_mtx]
         lens = [max(map(len, col)) for col in zip(*s)]
         fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
@@ -116,8 +116,33 @@ class Board:
     def num_total_enemies(self, player_id):
         return len(self.units) - self.num_total_allies(player_id) - 1
 
-    #
-    # def distance_between_units(self, unit1, unit2):
-    #     loc1 = unit1.loc
-    #     loc2 = unit2.loc
-    #     xdist = (loc1[0] - loc2[0] + self.board_size[0]) % self.board_size[0]
+    def distance_from_closest_ally(self, unit):
+        dist = self.board_size[0] + self.board_size[1]
+        for unit_id in self.units:
+            target_unit = self.units[unit_id]
+            if target_unit == unit or target_unit.player_id != unit.player_id:
+                continue
+            distance_from_target_unit = self.distance_between_units(unit, target_unit)
+            if distance_from_target_unit < dist:
+                dist = distance_from_target_unit
+        return dist
+
+    def distance_from_closest_enemy(self, unit):
+        dist = self.board_size[0] + self.board_size[1]
+        for unit_id in self.units:
+            target_unit = self.units[unit_id]
+            if target_unit.player_id == unit.player_id:
+                continue
+            distance_from_target_unit = self.distance_between_units(unit, target_unit)
+            if distance_from_target_unit < dist:
+                dist = distance_from_target_unit
+        return dist
+
+    def distance_between_units(self, unit1, unit2):
+        loc1 = unit1.loc
+        loc2 = unit2.loc
+        xdist_abs = abs(loc1[0] - loc2[0])
+        xdist = min(xdist_abs, self.board_size[0] - xdist_abs)
+        ydist_abs = abs(loc1[1] - loc2[1])
+        ydist = min(ydist_abs, self.board_size[1] - ydist_abs)
+        return max(xdist, ydist)
