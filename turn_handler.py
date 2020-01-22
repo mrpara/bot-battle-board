@@ -11,7 +11,7 @@ class TurnHandler:
         self.turn_number = 0
 
     def current_unit(self):
-        return self.queue[0]
+        return self.queue[-1]
 
     def start_turn(self):
         self.can_act = True
@@ -22,4 +22,10 @@ class TurnHandler:
         self.queue.appendleft(self.queue.pop())
 
     def add_to_queue(self, unit):
-        self.queue.append(unit)
+        self.queue.appendleft(unit)
+
+    def remove_from_queue(self, unit):
+        self.queue.remove(unit)
+
+    def perform_critical_action(self):
+        self.can_act = False

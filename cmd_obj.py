@@ -19,7 +19,7 @@ class Commands:
                             + " and got " + str(len(args)))
 
     def execute_command(self, cmd, args):
-        if self.turn_handler.can_act is True:
+        if self.turn_handler.current_unit().can_act is True:
             return getattr(self, cmd)(*args)
         return None
 
@@ -35,26 +35,19 @@ class Commands:
         print("attacking!")
 
     def move(self):
+        self.turn_handler.perform_critical_action()
         unit_id = self.turn_handler.current_unit().id
         current_loc = self.turn_handler.current_unit().loc
         new_loc = self.board.get_free_adjacent_loc(current_loc)
         if new_loc is None:
-            self.turn_handler.end_turn()
             return
         self.board.move_unit(unit_id, new_loc)
-        self.turn_handler.end_turn()
-        print(self.board.board_matrix)
 
     def spawn(self):
-        player_id = self.turn_handler.current_unit().player_id
-        current_loc = self.turn_handler.current_unit().loc
-        spawn_loc = self.board.get_free_adjacent_loc(current_loc)
-        if spawn_loc is None:
-            self.turn_handler.end_turn()
-            return
-        self.board.spawn_unit(player_id, spawn_loc)
-        self.turn_handler.end_turn()
-        print(self.board.board_matrix)
+        self.turn_handler.perform_critical_action()
+        self.turn_handler.current_unit().set_spawn(3)
+        print("Setting spawn for unit " + str(self.turn_handler.current_unit().id) + " belonging to player " +
+              str(self.turn_handler.current_unit().player_id) + " in 3 turns")
 
     @staticmethod
     def add(a, b):

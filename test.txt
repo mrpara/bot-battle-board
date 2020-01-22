@@ -1,3 +1,3 @@
 iff(eq(get_unit_id(), 1), 
-	prnt(get_unit_id()) spawn(), 
-	prnt(0) move())
+	spawn(), 
+	move())

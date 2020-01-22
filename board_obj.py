@@ -25,9 +25,24 @@ class Board:
 
         self.num_total_units_spawned += 1
         unit_id = self.num_total_units_spawned
-        self.units[unit_id] = Unit(unit_id, player_id, loc)
+        self.units[unit_id] = Unit(self, unit_id, player_id, loc)
         self.board_matrix[loc[0], loc[1]] = unit_id
         self.turn_handler.add_to_queue(self.units[unit_id])
+
+    def despawn_unit(self, unit_id):
+        if unit_id not in self.units:
+            raise KeyError("Tried to delete nonexistent unit " + str(unit_id))
+        loc = self.units[unit_id].loc
+        self.board_matrix[loc[0], loc[1]] = 0
+        self.turn_handler.remove_from_queue(self.units[unit_id])
+        del self.units[unit_id]
+
+    def spawn_in_adjacent_location(self, player_id, loc):
+        spawn_loc = self.get_free_adjacent_loc(loc)
+        if spawn_loc is None:
+            return
+        self.spawn_unit(player_id, spawn_loc)
+        print("spawned")
 
     def get_free_adjacent_loc(self, loc):
         if self.num_free_tiles_around_loc(loc) == 0:

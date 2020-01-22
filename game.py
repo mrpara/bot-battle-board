@@ -2,6 +2,8 @@ import interpreter
 import board_obj
 import turn_handler
 
+# def turn
+
 turn_handler = turn_handler.TurnHandler()
 tst_board = board_obj.Board(turn_handler)
 intr = interpreter.Interpreter(tst_board, turn_handler)
@@ -12,9 +14,15 @@ print(test_script)
 
 #get_unit_id()
 a = intr.analyze(test_script)
-for i in range(5000):
+for i in range(50):
+    print("Turn number " + str(intr.turn_handler.turn_number))
+    print("Acting unit: " + str(intr.turn_handler.current_unit().id))
     intr.turn_handler.start_turn()
+    intr.turn_handler.current_unit().on_new_turn()
     a()
+    intr.turn_handler.end_turn()
+    print(tst_board.board_matrix)
+
 # print(intr.board.current_unit().var_data)
 
 # intr.board.start_turn()
