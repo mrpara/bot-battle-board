@@ -5,9 +5,9 @@ import cmd_obj
 # noinspection SpellCheckingInspection
 class Interpreter:
     # This class handles verification and execution of allowable user-input commands
-    def __init__(self, board):
-        self.board = board
-        self.commands = cmd_obj.Cmd(board)
+    def __init__(self, board, turn_handler):
+        self.turn_handler = turn_handler
+        self.commands = cmd_obj.Commands(board, turn_handler)
 
     @staticmethod
     def is_number(expr):
@@ -21,7 +21,7 @@ class Interpreter:
     def parse(expr):
         # Initial parsing for expression; strip off leading and trailing whitespaces, replace multiple spaces with
         # singles, and separate into different commands on whitespace or linebreak if not enclosed within parentheses
-        expr_parsed = ' '.join(expr.split()).replace("\n", " ")
+        expr_parsed = ' '.join(expr.split()).replace("\n", " ").replace("\t", " ")
         par = 0
         token = ""
         expr_sep = []
@@ -95,8 +95,8 @@ class Interpreter:
         return res
 
     def get_symbol_value(self, expr):
-        if expr in self.board.current_unit.var_data:
-            return self.board.current_unit.var_data[expr]
+        if expr in self.turn_handler.current_unit.var_data:
+            return self.turn_handler.current_unit.var_data[expr]
         raise Exception("Undefined symbol " + expr)
 
     def eval_and_exec_general(self, cmd, args):

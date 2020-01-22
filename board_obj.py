@@ -1,42 +1,21 @@
 import numpy as np
+from unit_obj import Unit
 from collections import deque
 from random import randint
 
-class Unit:
-    def __init__(self, unit_id, player_id, initial_loc):
-        self.id = unit_id
-        self.player_id = player_id
-        self.var_data = {}
-        self.loc = initial_loc
-        self.hp = 3
 
 class Board:
-    def __init__(self):
+    def __init__(self, turn_handler):
+        self.turn_handler = turn_handler
         self.board_size = [10, 10]
-        self.board = np.zeros((self.board_size[0], self.board_size[0]))
-
-        self.can_act = False
-        self.queue = deque()
+        self.board_matrix = np.zeros((self.board_size[0], self.board_size[0]))
         self.units = {}
         self.num_total_units_spawned = 0
-        self.spawn_unit(0, [5,5])
-        self.spawn_unit(1, [2,2])
-
-        self.turn_number = 0
-
-    def current_unit(self):
-        return self.units[self.queue[0]]
-
-    def start_turn(self):
-        self.can_act = True
-        self.turn_number += 1
-
-    def end_turn(self):
-        self.can_act = False
-        self.queue.appendleft(self.queue.pop())
+        self.spawn_unit(0, [5, 5])
+        self.spawn_unit(1, [2, 2])
 
     def is_free(self, loc):
-        if self.board[loc[0], loc[1]] == 0:
+        if self.board_matrix[loc[0], loc[1]] == 0:
             return True
         return False
 
@@ -47,8 +26,16 @@ class Board:
         self.num_total_units_spawned += 1
         unit_id = self.num_total_units_spawned
         self.units[unit_id] = Unit(unit_id, player_id, loc)
-        self.board[loc[0], loc[1]] = unit_id
-        self.queue.append(unit_id)
+        self.board_matrix[loc[0], loc[1]] = unit_id
+        self.turn_handler.add_to_queue(self.units[unit_id])
+
+    def get_free_adjacent_loc(self, loc):
+        if self.num_free_tiles_around_loc(loc) == 0:
+            return None
+        free_loc = self.get_adjacent_loc(loc)
+        while not self.is_free(free_loc):
+            free_loc = self.get_adjacent_loc(free_loc)
+        return free_loc
 
     def get_adjacent_loc(self, loc):
         return [(loc[0] + randint(-1, 1) + self.board_size[0]) % self.board_size[0],
@@ -59,26 +46,29 @@ class Board:
             raise Exception("Tried to move unit " + str(unit_id) + "to occupied location " + str(new_loc))
         old_loc = self.units[unit_id].loc
         self.units[unit_id].loc = new_loc
-        self.board[old_loc[0], old_loc[1]] = 0
-        self.board[new_loc[0], new_loc[1]] = unit_id
+        self.board_matrix[old_loc[0], old_loc[1]] = 0
+        self.board_matrix[new_loc[0], new_loc[1]] = unit_id
 
     def update_board(self):
-        self.board = np.zeros((self.board_size[0], self.board_size[0]))
+        self.board_matrix = np.zeros((self.board_size[0], self.board_size[0]))
         for unit in self.units:
-            loc = self.units[unit].loc
-            id = self.units[unit].id
-            if not self.is_free(loc):
-                raise Exception("Error, location " + str(loc) + "contains two units: id " + str(id) +
-                                " and id " + str(self.board[loc[0], loc[1]]))
-            self.board[loc[0], loc[1]] = id
+            unit_loc = self.units[unit].loc
+            unit_id = self.units[unit].id
+            if not self.is_free(unit_loc):
+                raise Exception("Error, location " + str(unit_loc) + "contains two units: id " + str(unit_id) +
+                                " and id " + str(self.board_matrix[unit_loc[0], unit_loc[1]]))
+            self.board_matrix[unit_loc[0], unit_loc[1]] = unit_id
 
-    def num_free_tiles_around_unit(self, unit_id):
-        loc = self.units[unit_id].loc
+    def num_free_tiles_around_loc(self, loc):
         n = 0
         for x_adj in [-1, 0, 1]:
             for y_adj in [-1, 0, 1]:
                 locx = (loc[0] + x_adj + self.board_size[0]) % self.board_size[0]
-                locy= (loc[1] + y_adj + self.board_size[1]) % self.board_size[1]
+                locy = (loc[1] + y_adj + self.board_size[1]) % self.board_size[1]
                 if self.is_free([locx, locy]):
                     n += 1
         return n
+
+    def num_free_tiles_around_unit(self, unit_id):
+        loc = self.units[unit_id].loc
+        return self.num_free_tiles_around_loc(loc)

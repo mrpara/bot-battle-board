@@ -1,10 +1,12 @@
 import inspect
 
+
 # noinspection SpellCheckingInspection
-class Cmd:
+class Commands:
     # This class handles verification and execution of allowable user-input commands
-    def __init__(self, board):
+    def __init__(self, board, turn_handler):
         self.board = board
+        self.turn_handler = turn_handler
 
     def verify_command(self, cmd, args):
         # Chceck that input command is defined in this class, and correct number of arguments is provided
@@ -17,52 +19,42 @@ class Cmd:
                             + " and got " + str(len(args)))
 
     def execute_command(self, cmd, args):
-        if self.board.can_act is True:
+        if self.turn_handler.can_act is True:
             return getattr(self, cmd)(*args)
         return None
 
     def define(self, symb, val):
-        self.board.current_unit().var_data[symb] = val
+        self.turn_handler.current_unit().var_data[symb] = val
         return True
 
     def get_unit_id(self):
-        return self.board.current_unit().id
+        return self.turn_handler.current_unit().id
 
     @staticmethod
     def attack():
         print("attacking!")
 
     def move(self):
-        unit_id = self.board.current_unit().id
-        current_loc = self.board.current_unit().loc
-        if self.board.num_free_tiles_around_unit(unit_id) == 0:
-            self.board.end_turn()
+        unit_id = self.turn_handler.current_unit().id
+        current_loc = self.turn_handler.current_unit().loc
+        new_loc = self.board.get_free_adjacent_loc(current_loc)
+        if new_loc is None:
+            self.turn_handler.end_turn()
             return
-        new_loc = self.board.get_adjacent_loc(current_loc)
-        while not self.board.is_free(new_loc):
-            new_loc = self.board.get_adjacent_loc(current_loc)
         self.board.move_unit(unit_id, new_loc)
-        self.board.end_turn()
-        # print(self.board.board)
+        self.turn_handler.end_turn()
+        print(self.board.board_matrix)
 
     def spawn(self):
-        # NEEDS REWORK
-        unit_id = self.board.current_unit().id
-        player_id = self.board.current_unit().player_id
-        current_loc = self.board.current_unit().loc
-        if self.board.num_free_tiles_around_unit(unit_id) == 0:
-            self.board.end_turn()
+        player_id = self.turn_handler.current_unit().player_id
+        current_loc = self.turn_handler.current_unit().loc
+        spawn_loc = self.board.get_free_adjacent_loc(current_loc)
+        if spawn_loc is None:
+            self.turn_handler.end_turn()
             return
-        spawn_loc = self.board.get_adjacent_loc(current_loc)
-        while not self.board.is_free(spawn_loc):
-            spawn_loc = self.board.get_adjacent_loc(current_loc)
         self.board.spawn_unit(player_id, spawn_loc)
-        self.board.end_turn()
-        print(self.board.board)
-        # print(self.board.num_free_tiles_around_unit(unit_id))
-
-    def end_turn(self):
-        self.board.can_act = False
+        self.turn_handler.end_turn()
+        print(self.board.board_matrix)
 
     @staticmethod
     def add(a, b):
