@@ -93,9 +93,7 @@ class Interpreter:
         # Note that we continue this only so long as the current unit is able to act.
         res = None
         for expr in exprs:
-            if self.turn_handler.performed_critical_action is False \
-                    and self.turn_handler.current_unit().can_act is True:
-                res = expr()
+            res = expr()
         return res
 
     def get_symbol_value(self, expr):
@@ -175,7 +173,8 @@ class Interpreter:
                 # Special case handling for "if" statement, which transforms it into an if_else statement with a
                 # blank else clause. This saves us from having to implement both functions, as well as avoids problems
                 # with the "if" command shadowing python's
-
+                print(cmd)
+                print(args)
                 self.commands.verify_command(cmd, args)
                 exprs_processed.append((lambda xcmd, xargs: lambda: self.eval_and_exec(xcmd, xargs))(cmd, args))
                 # Important: This double-lambda construct is here because python evaluates variables on execution

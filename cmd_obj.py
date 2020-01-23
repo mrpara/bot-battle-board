@@ -1,4 +1,18 @@
 import inspect
+from functools import wraps
+
+
+def critical_action(func):
+    # Decorator for "critical actions", which can only be executed once per turn and only if the unit is able
+    # to act (i.e. not in the middle of spawning etc)
+    @wraps(func)
+    def decorated(self, *args, **kwargs):
+        if self.turn_handler.performed_critical_action is True \
+                or self.turn_handler.current_unit().can_act is False:
+            return None
+        self.turn_handler.performed_critical_action = True
+        return func(self, *args, **kwargs)
+    return decorated
 
 
 class Commands:
@@ -17,6 +31,8 @@ class Commands:
         if cmd == "execute_command" or cmd == "verify_command":
             raise Exception("Command unavailable to user")
         if len(args) != num_expected_args:
+            print(cmd)
+            print(args)
             raise Exception("Invalid number of arguments; expected " + str(num_expected_args)
                             + " and got " + str(len(args)))
 
@@ -31,12 +47,14 @@ class Commands:
     # Critical actions (will not allow execution of any more commands in the same turn)
     ####################################################################################################################
 
+    @critical_action
     def attack(self):
         # Attack random adjacent enemy
         self.turn_handler.perform_critical_action()
         unit = self.turn_handler.current_unit()
         self.board.attack_adjacent_enemy(unit)
 
+    @critical_action
     def move(self):
         # Move to random free adjacent tile
         self.turn_handler.perform_critical_action()
@@ -48,6 +66,7 @@ class Commands:
             return
         self.board.move_unit(unit, new_loc)
 
+    @critical_action
     def spawn(self):
         # Set spawn timer of unit to 3 (unit will be unable to act for 3 turns, and will then spawn a new unit
         # in an adjacent free tile.
@@ -56,6 +75,7 @@ class Commands:
         print("Setting spawn for unit " + str(self.turn_handler.current_unit().id) + " belonging to player " +
               str(self.turn_handler.current_unit().player_id) + " in 3 turns")
 
+    @critical_action
     def wait(self):
         # Forfeit turn
         self.turn_handler.perform_critical_action()

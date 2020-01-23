@@ -12,3 +12,5 @@ if(gt(x, 5),
 		move(),
 		attack()))
 move()
+move()
+move()
