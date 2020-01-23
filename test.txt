@@ -1,5 +1,6 @@
 prnt(distance_from_closest_ally())
 prnt(distance_from_closest_enemy())
 iff(eq(get_unit_id(), 1), 
-	spawn(), 
-	move())
+	spawn()
+	, 
+	5)

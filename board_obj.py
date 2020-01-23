@@ -47,7 +47,7 @@ class Board:
             return None
         free_loc = self.get_adjacent_loc(loc)
         while not self.is_free(free_loc):
-            free_loc = self.get_adjacent_loc(free_loc)
+            free_loc = self.get_adjacent_loc(loc)
         return free_loc
 
     def get_adjacent_loc(self, loc):
