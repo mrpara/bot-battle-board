@@ -1,6 +1,6 @@
 from unit_obj import Unit
 from collections import deque
-from random import randint
+from random import choice
 
 
 class Board:
@@ -43,16 +43,20 @@ class Board:
         self.spawn_unit(player_id, spawn_loc)
 
     def get_free_adjacent_loc(self, loc):
-        if self.num_free_tiles_around_loc(loc) == 0:
+        free_adjacent_locs = self.get_locs_with_true_value_around_loc(loc, self.is_free)
+        if len(free_adjacent_locs) == 0:
             return None
-        free_loc = self.get_adjacent_loc(loc)
-        while not self.is_free(free_loc):
-            free_loc = self.get_adjacent_loc(loc)
-        return free_loc
+        return choice(free_adjacent_locs)
 
-    def get_adjacent_loc(self, loc):
-        return [(loc[0] + randint(-1, 1) + self.board_size[0]) % self.board_size[0],
-                (loc[1] + randint(-1, 1) + self.board_size[1]) % self.board_size[1]]
+    def get_all_adjacent_locs(self, loc):
+        adjacent_locs = []
+        for x_adj in [-1, 0, 1]:
+            for y_adj in [-1, 0, 1]:
+                locx = (loc[0] + x_adj + self.board_size[0]) % self.board_size[0]
+                locy = (loc[1] + y_adj + self.board_size[1]) % self.board_size[1]
+                if x_adj != 0 or y_adj != 0:
+                    adjacent_locs.append([locx, locy])
+        return adjacent_locs
 
     def move_unit(self, unit, new_loc):
         if not self.is_free(new_loc):
@@ -63,7 +67,7 @@ class Board:
         self.board[new_loc[0]][new_loc[1]] = unit
 
     def num_free_tiles_around_loc(self, loc):
-        return self.count_boolean_function_around_loc(loc, self.is_free)
+        return self.count_true_values_around_loc(loc, self.is_free)
 
     def num_free_tiles_around_unit(self, unit):
         loc = unit.loc
@@ -73,12 +77,11 @@ class Board:
         return self.board[loc[0]][loc[1]]
 
     def get_adjacent_enemy_unit(self, unit):
-        if self.num_enemies_around_unit(unit) == 0:
+        enemy_locs = self.get_locs_with_true_value_around_loc(unit.loc,
+                                                              lambda tloc: self.is_ally(tloc, unit.player_id))
+        if len(enemy_locs) == 0:
             return None
-        enemy_loc = self.get_adjacent_loc(unit.loc)
-        while not self.is_enemy(enemy_loc, unit.player_id):
-            enemy_loc = self.get_adjacent_loc(unit.loc)
-        return self.get_unit_in_loc(enemy_loc)
+        return self.get_unit_in_loc(choice(enemy_locs))
 
     def attack_adjacent_enemy(self, unit):
         enemy_unit = self.get_adjacent_enemy_unit(unit)
@@ -106,17 +109,23 @@ class Board:
     def num_allies_around_unit(self, unit):
         loc = unit.loc
         player_id = unit.player_id
-        return self.count_boolean_function_around_loc(loc, lambda tloc: self.is_ally(tloc, player_id)) - 1
+        return self.count_true_values_around_loc(loc, lambda tloc: self.is_ally(tloc, player_id))
 
-    def count_boolean_function_around_loc(self, loc, f_bool):
+    def count_true_values_around_loc(self, loc, f_bool):
+        adjacent_locs = self.get_all_adjacent_locs(loc)
         n = 0
-        for x_adj in [-1, 0, 1]:
-            for y_adj in [-1, 0, 1]:
-                locx = (loc[0] + x_adj + self.board_size[0]) % self.board_size[0]
-                locy = (loc[1] + y_adj + self.board_size[1]) % self.board_size[1]
-                if f_bool([locx, locy]) is True:
-                    n += 1
+        for adjacent_loc in adjacent_locs:
+            if f_bool(adjacent_loc) is True:
+                n += 1
         return n
+
+    def get_locs_with_true_value_around_loc(self, loc, f_bool):
+        adjacent_locs = self.get_all_adjacent_locs(loc)
+        instances = []
+        for adjacent_loc in adjacent_locs:
+            if f_bool(adjacent_loc) is True:
+                instances.append(adjacent_loc)
+        return instances
 
     def print_board(self):
         output_mtx = []
@@ -138,27 +147,24 @@ class Board:
     def num_total_enemies(self, player_id):
         return len(self.units) - self.num_total_allies(player_id) - 1
 
+    def get_all_enemies(self, unit):
+        return [self.units[t_unit] for t_unit in self.units if self.units[t_unit].player_id != unit.player_id]
+
+    def get_all_allies(self, unit):
+        return [self.units[t_unit] for t_unit in self.units if (self.units[t_unit].player_id == unit.player_id
+                                                                and self.units[t_unit] != unit)]
+
     def distance_from_closest_ally(self, unit):
-        dist = self.board_size[0] + self.board_size[1]
-        for unit_id in self.units:
-            target_unit = self.units[unit_id]
-            if target_unit == unit or target_unit.player_id != unit.player_id:
-                continue
-            distance_from_target_unit = self.distance_between_units(unit, target_unit)
-            if distance_from_target_unit < dist:
-                dist = distance_from_target_unit
-        return dist
+        dist = [self.board_size[0] + self.board_size[1]]
+        for ally in self.get_all_allies(unit):
+            dist.append(self.distance_between_units(unit, ally))
+        return min(dist)
 
     def distance_from_closest_enemy(self, unit):
-        dist = self.board_size[0] + self.board_size[1]
-        for unit_id in self.units:
-            target_unit = self.units[unit_id]
-            if target_unit.player_id == unit.player_id:
-                continue
-            distance_from_target_unit = self.distance_between_units(unit, target_unit)
-            if distance_from_target_unit < dist:
-                dist = distance_from_target_unit
-        return dist
+        dist = [self.board_size[0] + self.board_size[1]]
+        for enemy in self.get_all_enemies(unit):
+            dist.append(self.distance_between_units(unit, enemy))
+        return min(dist)
 
     def distance_between_units(self, unit1, unit2):
         loc1 = unit1.loc
