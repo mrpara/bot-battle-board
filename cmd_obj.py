@@ -21,28 +21,27 @@ class Commands:
                             + " and got " + str(len(args)))
 
     def execute_command(self, cmd, args):
-        # Run the command if the unit is still able to act (i.e. it has not attacked, spawned, etc in this turn)
-        if self.turn_handler.current_unit().can_act is True:
-            return getattr(self, cmd)(*args)
-        return None
+        return getattr(self, cmd)(*args)
 
-    #########################################
+    ####################################################################################################################
     # USER COMMANDS
-    #########################################
+    ####################################################################################################################
 
-    #########################################
-    # Critical actions
-    #########################################
+    ####################################################################################################################
+    # Critical actions (will not allow execution of any more commands in the same turn)
+    ####################################################################################################################
 
-    @staticmethod
-    def attack():
+    def attack(self):
         # Attack random adjacent enemy
-        print("attacking!")
+        self.turn_handler.perform_critical_action()
+        unit = self.turn_handler.current_unit()
+        self.board.attack_adjacent_enemy(unit)
 
     def move(self):
         # Move to random free adjacent tile
         self.turn_handler.perform_critical_action()
         unit = self.turn_handler.current_unit()
+        print("Unit " + str(unit.id) + " moving")
         current_loc = unit.loc
         new_loc = self.board.get_free_adjacent_loc(current_loc)
         if new_loc is None:
@@ -57,9 +56,13 @@ class Commands:
         print("Setting spawn for unit " + str(self.turn_handler.current_unit().id) + " belonging to player " +
               str(self.turn_handler.current_unit().player_id) + " in 3 turns")
 
-    #########################################
+    def wait(self):
+        # Forfeit turn
+        self.turn_handler.perform_critical_action()
+
+    ####################################################################################################################
     # Non-critical actions (information-providing commands)
-    #########################################
+    ####################################################################################################################
 
     def get_unit_id(self):
         return self.turn_handler.current_unit().id
@@ -82,9 +85,9 @@ class Commands:
     def distance_from_closest_enemy(self):
         return self.board.distance_from_closest_enemy(self.turn_handler.current_unit())
 
-    #########################################
+    ####################################################################################################################
     # Arithmetic and general commands
-    #########################################
+    ####################################################################################################################
 
     def define(self, symb, val):
         # Command for defining new symbol
@@ -92,7 +95,7 @@ class Commands:
         return True
 
     @staticmethod
-    def iff(pred, if_true, if_false):
+    def if_else(pred, if_true, if_false):
         if pred:
             return if_true()
         else:

@@ -72,12 +72,34 @@ class Board:
     def get_unit_in_loc(self, loc):
         return self.board[loc[0]][loc[1]]
 
+    def get_adjacent_enemy_unit(self, unit):
+        if self.num_enemies_around_unit(unit) == 0:
+            return None
+        enemy_loc = self.get_adjacent_loc(unit.loc)
+        while not self.is_enemy(enemy_loc, unit.player_id):
+            enemy_loc = self.get_adjacent_loc(unit.loc)
+        return self.get_unit_in_loc(enemy_loc)
+
+    def attack_adjacent_enemy(self, unit):
+        enemy_unit = self.get_adjacent_enemy_unit(unit)
+        if enemy_unit is None:
+            print("Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
+            return
+        print("Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
+        enemy_unit.decrement_hp()
+
     def num_enemies_around_unit(self, unit):
         return 8 - self.num_free_tiles_around_unit(unit) - self.num_allies_around_unit(unit)
 
     def is_ally(self, loc, player_id):
         unit_in_loc = self.get_unit_in_loc(loc)
         if unit_in_loc is not None and unit_in_loc.player_id == player_id:
+            return True
+        return False
+
+    def is_enemy(self, loc, player_id):
+        unit_in_loc = self.get_unit_in_loc(loc)
+        if unit_in_loc is not None and unit_in_loc.player_id != player_id:
             return True
         return False
 

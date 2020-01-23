@@ -19,7 +19,7 @@ class Interpreter:
     @staticmethod
     def parse(expr):
         # Initial parsing for expression; strip off leading and trailing whitespaces, replace multiple spaces with
-        # singles, and separate into different commands on whitespace or linebreak if not enclosed within parentheses
+        # singles, and separate into diferent commands on whitespace or linebreak if not enclosed within parentheses
         expr_parsed = ' '.join(expr.split()).replace("\n", " ").replace("\t", " ")
         par = 0
         token = ""
@@ -88,19 +88,21 @@ class Interpreter:
 
         return args
 
-    @staticmethod
-    def execute_multiple(exprs):
-        # Execute all commands, return the value of the last one only
+    def execute_multiple(self, exprs):
+        # Execute all lambda functions. This evaluates arguments and then executes command.
+        # Note that we continue this only so long as the current unit is able to act.
         res = None
         for expr in exprs:
-            res = expr()
+            if self.turn_handler.performed_critical_action is False \
+                    and self.turn_handler.current_unit().can_act is True:
+                res = expr()
         return res
 
     def get_symbol_value(self, expr):
         # Defined symbol values are saved on a per-unit basis, so the value is always taken from the dictionary
         # of the "current unit", which is determined by the turn handler
-        if expr in self.turn_handler.current_unit.var_data:
-            return self.turn_handler.current_unit.var_data[expr]
+        if expr in self.turn_handler.current_unit().var_data:
+            return self.turn_handler.current_unit().var_data[expr]
         raise Exception("Undefined symbol " + expr)
 
     def eval_and_exec_general(self, cmd, args):
@@ -123,7 +125,7 @@ class Interpreter:
             args_eval[1] = self.get_symbol_value(args_eval[1])
         return self.commands.execute_command(cmd, args_eval)
 
-    def eval_and_exec_iff(self, cmd, args):
+    def eval_and_exec_if_else(self, cmd, args):
         # If statements are a special case since we only want to execute the lambdas of the arguments based on the
         # predicate. Therefore only the first argument (the predicate) is evaluated at this stage, and the relevant
         # result is evaluated within the function itself
@@ -137,8 +139,8 @@ class Interpreter:
         # Command execution requires special handling for define and if statements
         if cmd == "define":
             return self.eval_and_exec_define(cmd, args)
-        elif cmd == "iff":
-            return self.eval_and_exec_iff(cmd, args)
+        elif cmd == "if_else":
+            return self.eval_and_exec_if_else(cmd, args)
         else:
             return self.eval_and_exec_general(cmd, args)
 
@@ -157,7 +159,7 @@ class Interpreter:
                 # will be evaluated later as part of the execution
                 exprs_processed.append(lambda: expr)
             elif self.is_command(expr):
-                # Finally, for commands we first recursively analyze the arguments, then verify correct syntax,
+                # For commands we first recursively analyze the arguments, then verify correct syntax,
                 # and finally return a lambda function that evaluates all arguments and executes the command
                 # (note that the arguments themselves may be commands, which get executed as part of the evaluation
                 # process as well)
@@ -166,13 +168,21 @@ class Interpreter:
                 args = []
                 for arg in args_unevaluated:
                     args.append(self.analyze(arg))
+
+                if cmd == "if":
+                    cmd = "if_else"
+                    args.append(lambda: 0)
+                # Special case handling for "if" statement, which transforms it into an if_else statement with a
+                # blank else clause. This saves us from having to implement both functions, as well as avoids problems
+                # with the "if" command shadowing python's
+
                 self.commands.verify_command(cmd, args)
                 exprs_processed.append((lambda xcmd, xargs: lambda: self.eval_and_exec(xcmd, xargs))(cmd, args))
                 # Important: This double-lambda construct is here because python evaluates variables on execution
-                # and not on definition. To work our way around it, we construct a lambda that constructs the lambda we
-                # actually want, and immediately call it. Without this, other processed statements which return a
-                # lambda function will refer to the same cmd and arg, which will only be evaluated in the end. In other
-                # words, instead of analyzing all statement, only the last one will be analyzed (multiple times)
+                # and not on definition. Without this, other processed statements which return a lambda function will
+                # refer to the same cmd and arg, which will only be evaluated in the end. In other words, instead of
+                # analyzing all statement, only the last one will be analyzed (multiple times). To work our way around
+                # it, we construct a lambda that constructs the lambda we actually want, and immediately call it.
                 # Another way around this would be to define default arguments cmd=cmd, args=args since default
                 # arguments are evaluated on definition.
             else:

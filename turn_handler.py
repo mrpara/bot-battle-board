@@ -9,6 +9,7 @@ class TurnHandler:
         self.can_act = False
         self.queue = deque()
         self.turn_number = 0
+        self.performed_critical_action = None
 
     def current_unit(self):
         return self.queue[-1]
@@ -17,11 +18,11 @@ class TurnHandler:
         return self.current_unit().player_id
 
     def start_turn(self):
-        self.can_act = True
+        self.performed_critical_action = False
+        self.current_unit().on_new_turn()
         self.turn_number += 1
 
     def end_turn(self):
-        self.can_act = False
         self.queue.appendleft(self.queue.pop())
 
     def add_to_queue(self, unit):
@@ -31,4 +32,4 @@ class TurnHandler:
         self.queue.remove(unit)
 
     def perform_critical_action(self):
-        self.can_act = False
+        self.performed_critical_action = True

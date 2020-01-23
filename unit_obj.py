@@ -10,7 +10,7 @@ class Unit:
         self.player_id = player_id
         self.var_data = {}
         self.loc = initial_loc
-        self.hp = 50
+        self.hp = 3
         self.spawn_timer = 0
         self.can_act = True
 
@@ -19,7 +19,7 @@ class Unit:
         self.can_act = False
 
     def on_new_turn(self):
-        self.decrement_hp()
+        # self.decrement_hp()
         self.decrement_spawn_timer_and_spawn_if_ready()
 
     def decrement_spawn_timer_and_spawn_if_ready(self):

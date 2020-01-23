@@ -14,11 +14,10 @@ print(test_script)
 
 #get_unit_id()
 a = intr.analyze(test_script)
-for i in range(5000):
+for i in range(500):
     print("Turn number " + str(intr.turn_handler.turn_number))
     print("Acting unit: " + str(intr.turn_handler.current_unit().id))
     intr.turn_handler.start_turn()
-    intr.turn_handler.current_unit().on_new_turn()
     a()
     intr.turn_handler.end_turn()
     tst_board.print_board()

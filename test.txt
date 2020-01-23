@@ -1,6 +1,14 @@
-prnt(distance_from_closest_ally())
-prnt(distance_from_closest_enemy())
-iff(eq(get_unit_id(), 1), 
-	spawn()
-	, 
-	5)
+if(eq(get_unit_id(), 2), 
+	define(x, distance_from_closest_enemy())
+	if_else(gt(x, 1),
+		move(),
+		attack()))
+if(eq(get_unit_id(), 1), 
+	spawn())
+define(x, sub(num_total_allies(), num_total_enemies()))
+if(gt(x, 5),
+	define(y, distance_from_closest_enemy())
+	if_else(gt(y, 1),
+		move(),
+		attack()))
+move()
