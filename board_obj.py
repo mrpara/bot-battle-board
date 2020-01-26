@@ -6,12 +6,12 @@ from random import choice
 class Board:
     # This class handles the board object and the units on it and the manipulation thereof.
     # It also handles all unit- and board-related commands that should not be directly exposed to the user
-    def __init__(self, turn_handler):
+    def __init__(self, turn_handler, players):
         # Board initialization
         self.turn_handler = turn_handler
+        self.players = players
         self.board_size = [10, 10]
         self.board = [[None for _ in range(self.board_size[0])] for _ in range(self.board_size[1])]
-        self.units = {}
         self.num_total_units_spawned = 0
         self.spawn_unit(1, [5, 5])
         self.spawn_unit(2, [2, 2])
@@ -28,14 +28,14 @@ class Board:
         new_unit = Unit(self, unit_id, player_id, loc)
         self.board[loc[0]][loc[1]] = new_unit
         self.turn_handler.add_to_queue(new_unit)
-        self.units[unit_id] = new_unit
+        self.players[player_id].units.add(new_unit)
         print("New unit " + str(unit_id) + " spawned by player " + str(player_id) + " in location " + str(loc))
 
     def despawn_unit(self, unit):
         loc = unit.loc
         self.board[loc[0]][loc[1]] = None
         self.turn_handler.remove_from_queue(unit)
-        del self.units[unit.id]
+        self.players[unit.player_id].units.remove(unit)
 
     def spawn_in_adjacent_location(self, player_id, loc):
         spawn_loc = self.get_free_adjacent_loc(loc)
@@ -64,14 +64,10 @@ class Board:
         return 8 - self.num_free_tiles_around_unit(unit) - self.num_allies_around_unit(unit)
 
     def num_total_allies(self, player_id):
-        num_allies = 0
-        for unit_id in self.units:
-            if self.units[unit_id].player_id == player_id:
-                num_allies += 1
-        return num_allies - 1
+        return self.players[player_id].num_units() - 1
 
     def num_total_enemies(self, player_id):
-        return len(self.units) - self.num_total_allies(player_id) - 1
+        return sum([self.players[t_id].num_units() for t_id in self.players if t_id != player_id])
 
     def distance_from_closest_ally(self, unit):
         dist = [self.board_size[0] + self.board_size[1]]
@@ -182,11 +178,14 @@ class Board:
         return instances
 
     def get_all_enemies(self, unit):
-        return [self.units[t_unit] for t_unit in self.units if self.units[t_unit].player_id != unit.player_id]
+        return [t_unit
+                for player_id in self.players if player_id != unit.player_id
+                for t_unit in self.players[player_id].units]
 
     def get_all_allies(self, unit):
-        return [self.units[t_unit] for t_unit in self.units if (self.units[t_unit].player_id == unit.player_id
-                                                                and self.units[t_unit] != unit)]
+        return [t_unit
+                for t_unit in self.players[unit.player_id].units
+                if t_unit != unit]
 
     def distance_between_units(self, unit1, unit2):
         # Return the distance between two units. Here, distance is defined as the minimal number of steps needed to

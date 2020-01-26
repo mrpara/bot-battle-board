@@ -1,3 +1,6 @@
+prnt(num_total_allies())
+prnt(num_total_enemies())
+
 define(x, distance_from_closest_enemy())
 if(eq(get_unit_id(), 2), 
 	if_else(gt(x, 1),

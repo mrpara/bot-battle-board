@@ -1,11 +1,13 @@
 import interpreter
 import board_obj
 import turn_handler
-
+import player_obj
 # def turn
 
 turn_handler = turn_handler.TurnHandler()
-tst_board = board_obj.Board(turn_handler)
+players = {1: player_obj.Player(1), 2: player_obj.Player(2)}
+
+tst_board = board_obj.Board(turn_handler, players)
 intr = interpreter.Interpreter(tst_board, turn_handler)
 with open("test.txt", 'r') as input_file:
     test_script = input_file.read()
@@ -14,13 +16,29 @@ print(test_script)
 
 #get_unit_id()
 a = intr.analyze(test_script)
-for i in range(500):
+turn_limit = 500
+for i in range(turn_limit):
+    intr.turn_handler.start_turn()
+
     print("Turn number " + str(intr.turn_handler.turn_number))
     print("Acting unit: " + str(intr.turn_handler.current_unit().id))
-    intr.turn_handler.start_turn()
     a()
     intr.turn_handler.end_turn()
     tst_board.print_board()
+    players_to_remove = []
+    for player_id in players:
+        if players[player_id].num_units() == 0:
+            players_to_remove.append(player_id)
+
+            print("player " + str(player_id) + " has lost")
+
+    for player_id in players_to_remove:
+        del players[player_id]
+
+    if len(players) == 1:
+        winner = list(players)[0]
+        print("Player " + str(winner) + " has won the game")
+        break
 
 # print(intr.board.current_unit().var_data)
 
