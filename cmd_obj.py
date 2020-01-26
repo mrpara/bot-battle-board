@@ -57,11 +57,11 @@ class Commands:
     def move(self):
         # Move to random free adjacent tile
         unit = self.turn_handler.current_unit()
-        print("Unit " + str(unit.id) + " moving")
         current_loc = unit.loc
         new_loc = self.board.get_free_adjacent_loc(current_loc)
         if new_loc is None:
             return
+        print("Unit " + str(unit.id) + " moved from " + str(current_loc) + " to " + str(new_loc))
         self.board.move_unit(unit, new_loc)
 
     @critical_action

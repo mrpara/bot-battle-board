@@ -47,5 +47,6 @@ class Unit:
     def damage(self, dmg):
         if self.defending is True:
             self.defending = False
+            print("Unit " + str(self.id) + " defense broken")
             return
         self.decrement_hp(dmg)
