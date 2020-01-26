@@ -13,13 +13,14 @@ class Unit:
         self.hp = 3
         self.spawn_timer = 0
         self.can_act = True
+        self.defending = False
 
     def set_spawn(self, interval):
         self.spawn_timer += interval
         self.can_act = False
 
     def on_new_turn(self):
-        # self.decrement_hp()
+        self.defending = False
         self.decrement_spawn_timer_and_spawn_if_ready()
 
     def decrement_spawn_timer_and_spawn_if_ready(self):
@@ -30,11 +31,21 @@ class Unit:
                 print(self.board.num_allies_around_unit(self))
                 self.can_act = True
 
-    def decrement_hp(self):
-        self.hp -= 1
-        if self.hp == 0:
+    def decrement_hp(self, dmg):
+        self.hp -= dmg
+        print("Unit " + str(self.id) + " took " + str(dmg) + " damage")
+        if self.hp <= 0:
             self.kill()
 
     def kill(self):
         self.board.despawn_unit(self)
         print("Unit " + str(self.id) + " destroyed")
+
+    def defend(self):
+        self.defending = True
+
+    def damage(self, dmg):
+        if self.defending is True:
+            self.defending = False
+            return
+        self.decrement_hp(dmg)

@@ -19,7 +19,7 @@ class Interpreter:
     @staticmethod
     def parse(expr):
         # Initial parsing for expression; strip off leading and trailing whitespaces, replace multiple spaces with
-        # singles, and separate into diferent commands on whitespace or linebreak if not enclosed within parentheses
+        # singles, and separate into different commands on whitespace or linebreak if not enclosed within parentheses
         expr_parsed = ' '.join(expr.split()).replace("\n", " ").replace("\t", " ")
         par = 0
         token = ""
@@ -106,7 +106,7 @@ class Interpreter:
 
     def eval_and_exec_general(self, cmd, args):
         # First execute all lambda functions for all arguments, reducing them all to either numbers or symbols
-        # Then replace all symbols by their defined values
+        # Then resolve all symbols by replacing them with their defined values
         args_eval = args.copy()  # Avoid modifying the original arguments
         for idx, arg in enumerate(args_eval):
             args_eval[idx] = arg()
@@ -116,7 +116,7 @@ class Interpreter:
 
     def eval_and_exec_define(self, cmd, args):
         # Define is a special case since it expects the first argument to be an undefined symbol, so we must not
-        # perform lookup for it
+        # attempt to fully resolve it
         args_eval = args.copy()  # Avoid modifying the original arguments
         for idx, arg in enumerate(args_eval):
             args_eval[idx] = arg()
@@ -180,8 +180,8 @@ class Interpreter:
                 # Important: This double-lambda construct is here because python evaluates variables on execution
                 # and not on definition. Without this, other processed statements which return a lambda function will
                 # refer to the same cmd and arg, which will only be evaluated in the end. In other words, instead of
-                # analyzing all statement, only the last one will be analyzed (multiple times). To work our way around
-                # it, we construct a lambda that constructs the lambda we actually want, and immediately call it.
+                # analyzing all statements, only the last one will be analyzed (multiple times). To work our way around
+                # this, we construct a lambda that constructs the lambda we actually want, and immediately call it.
                 # Another way around this would be to define default arguments cmd=cmd, args=args since default
                 # arguments are evaluated on definition.
             else:

@@ -91,7 +91,7 @@ class Board:
             print("Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
             return
         print("Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
-        enemy_unit.decrement_hp()
+        enemy_unit.damage(1)
 
     ####################################################################################################################
     # Graphics

@@ -50,14 +50,12 @@ class Commands:
     @critical_action
     def attack(self):
         # Attack random adjacent enemy
-        self.turn_handler.perform_critical_action()
         unit = self.turn_handler.current_unit()
         self.board.attack_adjacent_enemy(unit)
 
     @critical_action
     def move(self):
         # Move to random free adjacent tile
-        self.turn_handler.perform_critical_action()
         unit = self.turn_handler.current_unit()
         print("Unit " + str(unit.id) + " moving")
         current_loc = unit.loc
@@ -70,7 +68,6 @@ class Commands:
     def spawn(self):
         # Set spawn timer of unit to 3 (unit will be unable to act for 3 turns, and will then spawn a new unit
         # in an adjacent free tile.
-        self.turn_handler.perform_critical_action()
         self.turn_handler.current_unit().set_spawn(3)
         print("Setting spawn for unit " + str(self.turn_handler.current_unit().id) + " belonging to player " +
               str(self.turn_handler.current_unit().player_id) + " in 3 turns")
@@ -78,7 +75,14 @@ class Commands:
     @critical_action
     def wait(self):
         # Forfeit turn
-        self.turn_handler.perform_critical_action()
+        print("Unit " + str(self.turn_handler.current_unit().id) + " has forfeited its turn")
+        pass
+
+    @critical_action
+    def defend(self):
+        # Unit goes into defense mode (will block up to one attack until next turn)
+        print("Unit " + str(self.turn_handler.current_unit().id) + " is defending")
+        self.turn_handler.current_unit().defend()
 
     ####################################################################################################################
     # Non-critical actions (information-providing commands)
