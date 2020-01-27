@@ -2,55 +2,102 @@ import interpreter
 import board_obj
 import turn_handler
 import player_obj
-# def turn
+import cmd_obj
+import user_prompts_obj
+import tkinter as tk
+from tkinter import filedialog
+from random import randint
 
-turn_handler = turn_handler.TurnHandler()
-players = {1: player_obj.Player(1), 2: player_obj.Player(2)}
+root = tk.Tk()  # Prevents blank window from showing up because of the call to filedialog
+root.withdraw()
 
-tst_board = board_obj.Board(turn_handler, players)
-intr = interpreter.Interpreter(tst_board, turn_handler)
-with open("test.txt", 'r') as input_file:
-    test_script = input_file.read()
-print(test_script)
-# a = intr.analyze("iff(eq(get_unit_id(), 1), prnt(get_unit_id()) spawn(), prnt(0) move())")
 
-#get_unit_id()
-a = intr.analyze(test_script)
-turn_limit = 500
-for i in range(turn_limit):
-    intr.turn_handler.start_turn()
+class Game:
+    def __init__(self):
+        # DEFAULT PARAMETERS
+        self.num_players = 2
+        self.board_size = [10, 10]
+        self.turn_limit = 500
+        self.num_rounds = 3
+        self.display_user_prompts = True
+        self.display_board = True
+        self.default_path = "C:/Users/user1/Dropbox/bot-battle-board"
 
-    print("Turn number " + str(intr.turn_handler.turn_number))
-    print("Acting unit: " + str(intr.turn_handler.current_unit().id))
-    a()
-    intr.turn_handler.end_turn()
-    tst_board.print_board()
-    players_to_remove = []
-    for player_id in players:
-        if players[player_id].num_units() == 0:
-            players_to_remove.append(player_id)
+        # OBJECT INITIALIZATION
+        self.players = {}  # Dict of players, player_id -> player_object
+        self.turn_handler = turn_handler.TurnHandler()  # Turn handler in charge of determining which unit acts when
+        self.board = board_obj.Board(self.turn_handler, self.players, self.board_size)  # Board and the units
+        self.user_commands = cmd_obj.Commands(self.board, self.turn_handler)
+        self.interpreter = interpreter.Interpreter(self.turn_handler, self.user_commands)
+        self.prompts = user_prompts_obj.Prompts(self.display_user_prompts, self.display_board)
 
-            print("player " + str(player_id) + " has lost")
+    def get_user_input(self):
+        # Read user input script
+        script_path = filedialog.askopenfilename(initialdir=self.default_path, filetypes=[("TXT", "*.txt")])
+        with open(script_path, 'r') as input_file:
+            bot_cmds = input_file.read()
+        return bot_cmds
 
-    for player_id in players_to_remove:
-        del players[player_id]
+    def populate_players(self):
+        # For each player, read their script and analyze it, and create a new player object
+        # with the resulting instructions
+        for i in range(self.num_players):
+            bot_cmds = self.get_user_input()
+            self.players[i + 1] = player_obj.Player(i + 1, self.interpreter.analyze(bot_cmds))
 
-    if len(players) == 1:
-        winner = list(players)[0]
-        print("Player " + str(winner) + " has won the game")
-        break
+    def spawn_initial_units(self):
+        # For each player, spawn one unit in a random location on the board_matrix. If the location has already
+        # been picked, keep picking random locations until an available one has been found.
+        spawn_locs = set()
+        newloc = [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1]) - 1]
+        for player_id in self.players:
+            while tuple(newloc) in spawn_locs:
+                newloc = [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1]) - 1]
+            spawn_locs.add(tuple(newloc))
+            self.board.spawn_unit(player_id, newloc)
 
-# print(intr.board.current_unit().var_data)
+    def turn_limit_reached(self):
+        return self.turn_handler.turn_number >= self.turn_limit
 
-# intr.board.start_turn()0
+    def turn(self):
+        # Start turn (resetting all relevant state variables), execute script for current acting unit, and end turn
+        self.turn_handler.start_turn()
+        print("Turn number " + str(self.interpreter.turn_handler.turn_number))
+        print("Acting unit: " + str(self.interpreter.turn_handler.current_unit().id))
+        self.players[self.turn_handler.current_player()].command_script()
+        self.turn_handler.end_turn()
+        self.prompts.print_board(self.board)
 
-# b = intr.analyze("define(x, 2) define(g, 5)")
-# a = intr.analyze("define(h, 7)")
-# b = intr.analyze("prnt(5)   \n  define(f, 9) \n define(j, 6)")
-# b = intr.analyze("prnt(5)  prnt(78)")
+    def remove_losing_players(self):
+        # Check if any players have had all of their units destroyed, and remove them from the players list
+        players_to_remove = []
+        for player_id in self.players:
+            if self.players[player_id].num_units() == 0:
+                players_to_remove.append(player_id)
+                print("Player " + str(player_id) + " eliminated")
+        for player_id in players_to_remove:
+            del self.players[player_id]
 
-# a()
-# print(intr.board.current_unit().var_data)
-# b()
-# b()
-# print(intr.board.current_unit().var_data)
+    def get_winner(self):
+        return list(self.players)[0]
+
+    def game_over(self):
+        # Game ends when only one player has surviving units (or if turn limit is reached)
+        return len(self.players) == 1
+
+    def start_game(self):
+        self.populate_players()
+        self.spawn_initial_units()
+
+        while not self.turn_limit_reached():
+            self.turn()
+            self.remove_losing_players()
+            if self.game_over():
+                print("Player " + str(self.get_winner()) + " has won the game")
+                break
+        if self.turn_limit_reached():
+            print("Tie")
+
+
+a = Game()
+a.start_game()

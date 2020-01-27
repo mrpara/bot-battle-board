@@ -1,7 +1,4 @@
-import numpy as np
-from unit_obj import Unit
 from collections import deque
-from random import randint
 
 
 class TurnHandler:
@@ -9,8 +6,8 @@ class TurnHandler:
     def __init__(self):
         self.queue = deque()
         self.turn_number = 0
-        self.performed_critical_action = None # Critical actions are user-commands such as attack() or move(),
-                                              # which may not be performed more than once a turn
+        self.performed_critical_action = None  # Critical actions are user-commands such as attack() or move(),
+        # which may not be performed more than once a turn
 
     def current_unit(self):
         return self.queue[-1]

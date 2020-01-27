@@ -1,20 +1,22 @@
+from typing import List
+from typing import Union
 from unit_obj import Unit
-from collections import deque
 from random import choice
 
 
 class Board:
-    # This class handles the board object and the units on it and the manipulation thereof.
-    # It also handles all unit- and board-related commands that should not be directly exposed to the user
-    def __init__(self, turn_handler, players):
+    # This class handles the board_matrix object and the units on it and the manipulation thereof.
+    # It also handles all unit- and board_matrix-related commands that should not be directly exposed to the user
+
+    board_matrix: List[List[Union[Unit, None]]]  # Type hinting
+
+    def __init__(self, turn_handler, players, board_size):
         # Board initialization
         self.turn_handler = turn_handler
         self.players = players
-        self.board_size = [10, 10]
-        self.board = [[None for _ in range(self.board_size[0])] for _ in range(self.board_size[1])]
+        self.board_size = board_size
+        self.board_matrix = [[None for _ in range(self.board_size[1])] for _ in range(self.board_size[0])]
         self.num_total_units_spawned = 0
-        self.spawn_unit(1, [5, 5])
-        self.spawn_unit(2, [2, 2])
 
     ####################################################################################################################
     # Board manipulation
@@ -26,14 +28,14 @@ class Board:
         self.num_total_units_spawned += 1
         unit_id = self.num_total_units_spawned
         new_unit = Unit(self, unit_id, player_id, loc)
-        self.board[loc[0]][loc[1]] = new_unit
+        self.board_matrix[loc[0]][loc[1]] = new_unit
         self.turn_handler.add_to_queue(new_unit)
         self.players[player_id].units.add(new_unit)
         print("New unit " + str(unit_id) + " spawned by player " + str(player_id) + " in location " + str(loc))
 
     def despawn_unit(self, unit):
         loc = unit.loc
-        self.board[loc[0]][loc[1]] = None
+        self.board_matrix[loc[0]][loc[1]] = None
         self.turn_handler.remove_from_queue(unit)
         self.players[unit.player_id].units.remove(unit)
 
@@ -48,8 +50,8 @@ class Board:
             raise Exception("Tried to move unit " + str(unit.id) + "to occupied location " + str(new_loc))
         old_loc = unit.loc
         unit.loc = new_loc
-        self.board[old_loc[0]][old_loc[1]] = None
-        self.board[new_loc[0]][new_loc[1]] = unit
+        self.board_matrix[old_loc[0]][old_loc[1]] = None
+        self.board_matrix[new_loc[0]][new_loc[1]] = unit
 
     ####################################################################################################################
     # Functions for use in user-commands
@@ -90,27 +92,11 @@ class Board:
         enemy_unit.damage(1)
 
     ####################################################################################################################
-    # Graphics
-    ####################################################################################################################
-
-    def print_board(self):
-        # Print the board matrix nicely formatted
-        # Code taken from https://stackoverflow.com/questions/13214809/pretty-print-2d-python-list/32159502
-        output_mtx = []
-        for row in self.board:
-            output_mtx.append(['X' if elem is None else elem.id for elem in row])
-        s = [[str(e) for e in row] for row in output_mtx]
-        lens = [max(map(len, col)) for col in zip(*s)]
-        fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
-        table = [fmt.format(*row) for row in s]
-        print('\n'.join(table))
-
-    ####################################################################################################################
     # Helper functions
     ####################################################################################################################
 
     def is_free(self, loc):
-        if self.board[loc[0]][loc[1]] is None:
+        if self.board_matrix[loc[0]][loc[1]] is None:
             return True
         return False
 
@@ -150,7 +136,7 @@ class Board:
         return self.num_free_tiles_around_loc(loc)
 
     def get_unit_in_loc(self, loc):
-        return self.board[loc[0]][loc[1]]
+        return self.board_matrix[loc[0]][loc[1]]
 
     def get_adjacent_enemy_unit(self, unit):
         enemy_locs = self.get_adjacent_locs_that_satisfy_bool(unit.loc,
@@ -190,7 +176,7 @@ class Board:
     def distance_between_units(self, unit1, unit2):
         # Return the distance between two units. Here, distance is defined as the minimal number of steps needed to
         # reach one unit from the other, taking into account that units can move one tile in any direction (including
-        # diagonally) and that the board wraps around (so it may be shorter to go from the other side).
+        # diagonally) and that the board_matrix wraps around (so it may be shorter to go from the other side).
         loc1 = unit1.loc
         loc2 = unit2.loc
         xdist_abs = abs(loc1[0] - loc2[0])

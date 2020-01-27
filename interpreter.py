@@ -1,12 +1,11 @@
 import re
-import cmd_obj
 
 
 class Interpreter:
     # This class handles parsing and analysis of user input
-    def __init__(self, board, turn_handler):
+    def __init__(self, turn_handler, commands):
         self.turn_handler = turn_handler
-        self.commands = cmd_obj.Commands(board, turn_handler)
+        self.commands = commands
 
     @staticmethod
     def is_number(expr):
