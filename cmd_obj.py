@@ -48,9 +48,16 @@ class Commands:
 
     @critical_action
     def attack(self):
-        # Attack random adjacent enemy
-        unit = self.turn_handler.current_unit()
-        self.board.attack_adjacent_enemy(unit)
+        # Attack random adjacent enemy for one point of damage
+        self.turn_handler.current_unit().attack(1)
+
+    @critical_action
+    def charge_attack(self, num_turns):
+        # Perform a charged attack. Charge for X turns, during which unit cannot perform actions,
+        # and then attack for (X+1)(X+2) / 2 damage. i.e. if charged for one turn, then unit will attack on the next
+        # turn (taking two turns total), dealing 3 points of damage. If charged for two turns, the unit will attack on
+        # the third turn dealing 6 points of damage and so on.
+        self.turn_handler.current_unit().charge_attack(num_turns)
 
     @critical_action
     def move(self):
@@ -68,8 +75,9 @@ class Commands:
         # Set spawn timer of unit to 3 (unit will be unable to act for 3 turns, and will then spawn a new unit
         # in an adjacent free tile.
         self.turn_handler.current_unit().set_spawn(3)
-        Feedback().display_message("Setting spawn for unit " + str(self.turn_handler.current_unit().id)
-                                   + " belonging to player " + str(self.turn_handler.current_unit().player_id)
+        unit = self.turn_handler.current_unit()
+        Feedback().display_message("Setting spawn for unit " + str(unit.id)
+                                   + " belonging to player " + str(unit.player_id)
                                    + " in 3 turns")
 
     @critical_action
@@ -83,6 +91,11 @@ class Commands:
         # Unit goes into defense mode (will block up to one attack until next turn)
         Feedback().display_message("Unit " + str(self.turn_handler.current_unit().id) + " is defending")
         self.turn_handler.current_unit().defend()
+
+    @critical_action
+    def fortify(self):
+        # Unit gains 1 hp. There is no upper limit to total hp.
+        self.turn_handler.current_unit().fortify()
 
     ####################################################################################################################
     # Non-critical actions (information-providing commands)

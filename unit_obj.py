@@ -15,6 +15,8 @@ class Unit:
         self.loc = initial_loc
         self.hp = 3
         self.spawn_timer = 0
+        self.charge_timer = 0
+        self.charge_strength = 0
         self.can_act = True
         self.defending = False
 
@@ -28,6 +30,7 @@ class Unit:
         # Reset or update relevant state variables
         self.defending = False
         self.decrement_spawn_timer_and_spawn_if_ready()
+        self.decrement_charge_timer_and_attack_if_ready()
 
     def decrement_spawn_timer_and_spawn_if_ready(self):
         # Decrement spawn timer (if active) and spawn new unit when it hits 0
@@ -53,6 +56,30 @@ class Unit:
         # Enter defense mode (unit will block next attack against it)
         self.defending = True
 
+    def attack(self, dmg):
+        # Attack adjacent enemy for dmg points of damage
+        self.board.attack_adjacent_enemy(self, dmg)
+
+    def charge_attack(self, num_turns):
+        # Set timer on charge attack, or simply attack if called to wait 0 turns
+        if num_turns == 0:
+            self.attack(1)
+        else:
+            Feedback().display_message("Unit " + str(self.id) + " is charging an attack!")
+            self.charge_timer = num_turns
+            self.can_act = False
+
+    def decrement_charge_timer_and_attack_if_ready(self):
+        # Decrement charge timer (if active) and attack when it hits 0
+        if self.charge_timer > 0:
+            self.charge_timer -= 1
+            self.charge_strength += 1
+            if self.charge_timer == 0:
+                dmg = (self.charge_strength + 1) * (self.charge_strength + 2) / 2
+                self.attack(int(dmg))
+                self.can_act = True
+                self.charge_strength = 0
+
     def damage(self, dmg):
         # Unit is under attack for dmg points of damage. Check if unit is defending. If it is, break defense.
         # Otherwise, unit hp is decremented
@@ -61,3 +88,7 @@ class Unit:
             Feedback().display_message("Unit " + str(self.id) + " defense broken")
             return
         self.decrement_hp(dmg)
+
+    def fortify(self):
+        # Fortify command: gain 1 hp
+        self.hp += 1

@@ -85,13 +85,13 @@ class Board:
             dist.append(self.distance_between_units(unit, enemy))
         return min(dist)
 
-    def attack_adjacent_enemy(self, unit):
+    def attack_adjacent_enemy(self, unit, dmg):
         enemy_unit = self.get_adjacent_enemy_unit(unit)
         if enemy_unit is None:
             Feedback().display_message("Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
             return
         Feedback().display_message("Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
-        enemy_unit.damage(1)
+        enemy_unit.damage(dmg)
 
     ####################################################################################################################
     # Helper functions

@@ -17,7 +17,7 @@ class Game:
         # DEFAULT PARAMETERS
         self.num_players = 2
         self.board_size = [20, 20]
-        self.turn_limit = 50000
+        self.turn_limit = 5000
         self.display_messages = True
         self.display_board = True
         self.default_path = "C:/Users/user1/Dropbox/bot-battle-board"
