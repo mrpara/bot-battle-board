@@ -2,6 +2,7 @@ from typing import List
 from typing import Union
 from unit_obj import Unit
 from random import choice
+from feedback_obj import Feedback
 
 
 class Board:
@@ -31,7 +32,8 @@ class Board:
         self.board_matrix[loc[0]][loc[1]] = new_unit
         self.turn_handler.add_to_queue(new_unit)
         self.players[player_id].units.add(new_unit)
-        print("New unit " + str(unit_id) + " spawned by player " + str(player_id) + " in location " + str(loc))
+        Feedback().display_message("New unit " + str(unit_id) + " spawned by player " + str(player_id) +
+                                   " in location " + str(loc))
 
     def despawn_unit(self, unit):
         loc = unit.loc
@@ -86,9 +88,9 @@ class Board:
     def attack_adjacent_enemy(self, unit):
         enemy_unit = self.get_adjacent_enemy_unit(unit)
         if enemy_unit is None:
-            print("Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
+            Feedback().display_message("Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
             return
-        print("Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
+        Feedback().display_message("Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
         enemy_unit.damage(1)
 
     ####################################################################################################################

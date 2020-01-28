@@ -1,5 +1,6 @@
 import inspect
 from functools import wraps
+from feedback_obj import Feedback
 
 
 def critical_action(func):
@@ -31,8 +32,6 @@ class Commands:
         if cmd == "execute_command" or cmd == "verify_command":
             raise Exception("Command unavailable to user")
         if len(args) != num_expected_args:
-            print(cmd)
-            print(args)
             raise Exception("Invalid number of arguments; expected " + str(num_expected_args)
                             + " and got " + str(len(args)))
 
@@ -61,7 +60,7 @@ class Commands:
         new_loc = self.board.get_free_adjacent_loc(current_loc)
         if new_loc is None:
             return
-        print("Unit " + str(unit.id) + " moved from " + str(current_loc) + " to " + str(new_loc))
+        Feedback().display_message("Unit " + str(unit.id) + " moved from " + str(current_loc) + " to " + str(new_loc))
         self.board.move_unit(unit, new_loc)
 
     @critical_action
@@ -69,19 +68,20 @@ class Commands:
         # Set spawn timer of unit to 3 (unit will be unable to act for 3 turns, and will then spawn a new unit
         # in an adjacent free tile.
         self.turn_handler.current_unit().set_spawn(3)
-        print("Setting spawn for unit " + str(self.turn_handler.current_unit().id) + " belonging to player " +
-              str(self.turn_handler.current_unit().player_id) + " in 3 turns")
+        Feedback().display_message("Setting spawn for unit " + str(self.turn_handler.current_unit().id)
+                                   + " belonging to player " + str(self.turn_handler.current_unit().player_id)
+                                   + " in 3 turns")
 
     @critical_action
     def wait(self):
         # Forfeit turn
-        print("Unit " + str(self.turn_handler.current_unit().id) + " has forfeited its turn")
+        Feedback().display_message("Unit " + str(self.turn_handler.current_unit().id) + " has forfeited its turn")
         pass
 
     @critical_action
     def defend(self):
         # Unit goes into defense mode (will block up to one attack until next turn)
-        print("Unit " + str(self.turn_handler.current_unit().id) + " is defending")
+        Feedback().display_message("Unit " + str(self.turn_handler.current_unit().id) + " is defending")
         self.turn_handler.current_unit().defend()
 
     ####################################################################################################################
@@ -169,4 +169,4 @@ class Commands:
 
     @staticmethod
     def prnt(a):
-        print(a)
+        Feedback().display_message(a)

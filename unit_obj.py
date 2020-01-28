@@ -1,3 +1,6 @@
+from feedback_obj import Feedback
+
+
 class Unit:
     # Class representing the basic unit (bot) and its state
     def __init__(self, board, unit_id, player_id, initial_loc):
@@ -32,20 +35,19 @@ class Unit:
             self.spawn_timer -= 1
             if self.spawn_timer == 0:
                 self.board.spawn_in_adjacent_location(self.player_id, self.loc)
-                print(self.board.num_allies_around_unit(self))
                 self.can_act = True
 
     def decrement_hp(self, dmg):
         # Reduce hp, check if unit dies
         self.hp -= dmg
-        print("Unit " + str(self.id) + " took " + str(dmg) + " damage")
+        Feedback().display_message("Unit " + str(self.id) + " took " + str(dmg) + " damage")
         if self.hp <= 0:
             self.kill()
 
     def kill(self):
         # Despawn unit from board_matrix
         self.board.despawn_unit(self)
-        print("Unit " + str(self.id) + " destroyed")
+        Feedback().display_message("Unit " + str(self.id) + " destroyed")
 
     def defend(self):
         # Enter defense mode (unit will block next attack against it)
@@ -56,6 +58,6 @@ class Unit:
         # Otherwise, unit hp is decremented
         if self.defending is True:
             self.defending = False
-            print("Unit " + str(self.id) + " defense broken")
+            Feedback().display_message("Unit " + str(self.id) + " defense broken")
             return
         self.decrement_hp(dmg)

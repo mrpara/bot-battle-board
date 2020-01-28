@@ -1,8 +1,22 @@
-class Prompts:
-    # This object is in charge of displaying the user prompts and board_matrix state
-    def __init__(self, display_user_prompts, display_board):
-        self.display_user_prompts = display_user_prompts
+class Singleton(type):
+    # Simple singleton metaclass implementation
+    instance = None
+
+    def __call__(cls, *args, **kw):
+        if cls.instance is None:
+            cls.instance = super(Singleton, cls).__call__(*args, **kw)
+        return cls.instance
+
+
+class Feedback(metaclass=Singleton):
+    # This object is in charge of displaying messages ("unit x attacked" etc) and board state
+    def __init__(self, display_messages=True, display_board=True):
+        self.display_messages = display_messages
         self.display_board = display_board
+
+    def display_message(self, message):
+        if self.display_messages is True:
+            print(message)
 
     def print_board(self, board):
         # Print the board_matrix matrix nicely formatted

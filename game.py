@@ -3,7 +3,7 @@ import board_obj
 import turn_handler
 import player_obj
 import cmd_obj
-import user_prompts_obj
+from feedback_obj import Feedback
 import tkinter as tk
 from tkinter import filedialog
 from random import randint
@@ -19,17 +19,17 @@ class Game:
         self.board_size = [10, 10]
         self.turn_limit = 500
         self.num_rounds = 3
-        self.display_user_prompts = True
+        self.display_messages = True
         self.display_board = True
         self.default_path = "C:/Users/user1/Dropbox/bot-battle-board"
 
         # OBJECT INITIALIZATION
         self.players = {}  # Dict of players, player_id -> player_object
+        Feedback(self.display_messages, self.display_board)
         self.turn_handler = turn_handler.TurnHandler()  # Turn handler in charge of determining which unit acts when
-        self.board = board_obj.Board(self.turn_handler, self.players, self.board_size)  # Board and the units
+        self.board = board_obj.Board(self.turn_handler, self.players, self.board_size)  # Board and units
         self.user_commands = cmd_obj.Commands(self.board, self.turn_handler)
         self.interpreter = interpreter.Interpreter(self.turn_handler, self.user_commands)
-        self.prompts = user_prompts_obj.Prompts(self.display_user_prompts, self.display_board)
 
     def get_user_input(self):
         # Read user input script
@@ -62,11 +62,11 @@ class Game:
     def turn(self):
         # Start turn (resetting all relevant state variables), execute script for current acting unit, and end turn
         self.turn_handler.start_turn()
-        print("Turn number " + str(self.interpreter.turn_handler.turn_number))
-        print("Acting unit: " + str(self.interpreter.turn_handler.current_unit().id))
+        Feedback().display_message("Turn number " + str(self.interpreter.turn_handler.turn_number))
+        Feedback().display_message("Acting unit: " + str(self.interpreter.turn_handler.current_unit().id))
         self.players[self.turn_handler.current_player()].command_script()
         self.turn_handler.end_turn()
-        self.prompts.print_board(self.board)
+        Feedback().print_board(self.board)
 
     def remove_losing_players(self):
         # Check if any players have had all of their units destroyed, and remove them from the players list
@@ -74,7 +74,7 @@ class Game:
         for player_id in self.players:
             if self.players[player_id].num_units() == 0:
                 players_to_remove.append(player_id)
-                print("Player " + str(player_id) + " eliminated")
+                Feedback().display_message("Player " + str(player_id) + " eliminated")
         for player_id in players_to_remove:
             del self.players[player_id]
 
@@ -93,11 +93,9 @@ class Game:
             self.turn()
             self.remove_losing_players()
             if self.game_over():
-                print("Player " + str(self.get_winner()) + " has won the game")
+                Feedback().display_message("Player " + str(self.get_winner()) + " has won the game")
                 break
         if self.turn_limit_reached():
-            print("Tie")
-
-
+            Feedback().display_message("Turn limit reached, game ends in tie")
 a = Game()
 a.start_game()
