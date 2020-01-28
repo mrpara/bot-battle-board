@@ -78,10 +78,30 @@ class Game:
         for player_id in players_to_remove:
             del self.players[player_id]
 
-    def get_winner(self):
-        return list(self.players)[0]
+    def announce_winner(self):
+        # Check and report the winning player(s).
+        # If only one player remains, they win. Otherwise, check number of remaining units per player.
+        # The winners are all the players who hold the highest number of remaining units.
 
-    def game_over(self):
+        if self.one_player_left():
+            Feedback().display_message("Player " + str(list(self.players)[0]) + " has won the game")
+            return
+
+        #  Make a player id -> remaining units dict, check max value, then get all player ids with this max value
+        remaining_units = {player_id: self.players[player_id].num_units() for player_id in self.players}
+        max_num_units_left = max(remaining_units.values())
+        tied_players = [player_id for player_id in remaining_units
+                        if remaining_units[player_id] == max_num_units_left]
+
+        if len(tied_players) == 1:
+            Feedback().display_message("Turn limit reached, player " + str(tied_players[0]) +
+                                       " wins with " + str(max_num_units_left) + " units remaining")
+            return
+
+        Feedback().display_message("Turn limit reached, players " + str(tied_players) +
+                                   " are tied with " + str(max_num_units_left) + " units remaining")
+
+    def one_player_left(self):
         # Game ends when only one player has surviving units (or if turn limit is reached)
         return len(self.players) == 1
 
@@ -89,13 +109,12 @@ class Game:
         self.populate_players()
         self.spawn_initial_units()
 
-        while not self.turn_limit_reached():
+        while not self.turn_limit_reached() and not self.one_player_left():
             self.turn()
             self.remove_losing_players()
-            if self.game_over():
-                Feedback().display_message("Player " + str(self.get_winner()) + " has won the game")
-                break
-        if self.turn_limit_reached():
-            Feedback().display_message("Turn limit reached, game ends in tie")
+
+        self.announce_winner()
+
+
 a = Game()
 a.start_game()

@@ -1,4 +1,4 @@
-move()
+spawn()
 define(x, distance_from_closest_enemy())
 
 if(eq(get_unit_id(), 1), 

@@ -184,6 +184,6 @@ class Interpreter:
                 # Another way around this would be to define default arguments cmd=cmd, args=args since default
                 # arguments are evaluated on definition.
             else:
-                raise Exception("Syntax error")
+                raise Exception("Syntax error in expression " + str(expr))
 
         return lambda: self.execute_multiple(exprs_processed)
