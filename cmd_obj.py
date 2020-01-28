@@ -167,6 +167,6 @@ class Commands:
     def neg(a):
         return not a
 
-    @staticmethod
-    def prnt(a):
-        Feedback().display_message(a)
+    # @staticmethod
+    # def prnt(a):
+    #     Feedback().display_message(a)

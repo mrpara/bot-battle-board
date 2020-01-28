@@ -1,3 +1,10 @@
-spawn()
+define(x, distance_from_closest_enemy())
+define(y, sub(num_total_allies(), num_total_enemies()))
 
+if(gt(y, 5), 
+	if(eq(x, 1), attack())
+	move())
+
+if(eq(x, 1), defend())
+if(gt(x, 3), spawn())
 move()

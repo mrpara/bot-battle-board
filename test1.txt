@@ -1,14 +1,4 @@
-spawn()
 define(x, distance_from_closest_enemy())
-
-if(eq(get_unit_id(), 1), 
-	if(eq(x, 1), defend())
-	spawn())
-define(z, sub(num_total_allies(), num_total_enemies()))
-if(gt(z, 5),
-	if_else(gt(x, 1),
-		move(),
-		attack()))
-move()
-move()
+if(eq(x, 1), attack())
+if(gt(x, 3), spawn())
 move()
