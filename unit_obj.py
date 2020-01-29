@@ -18,14 +18,12 @@ class Unit:
         self.charge_timer = 0
         self.charge_strength = 0
         self.unit_turn_number = 0
-        self.can_act = True
         self.defending = False
 
     def set_spawn(self, interval):
         # Begin spawn countdown. After interval units have passed and timer reaches 0, a new unit will be spawned.
         # In the meantime the unit is unable to act
         self.spawn_timer += interval
-        self.can_act = False
 
     def on_new_turn(self):
         # Reset or update relevant state variables
@@ -40,7 +38,6 @@ class Unit:
             self.spawn_timer -= 1
             if self.spawn_timer == 0:
                 self.board.spawn_in_adjacent_location(self.player_id, self.loc)
-                self.can_act = True
 
     def decrement_hp(self, dmg):
         # Reduce hp, check if unit dies
@@ -69,7 +66,6 @@ class Unit:
         else:
             Feedback().display_message("Unit " + str(self.id) + " is charging an attack!")
             self.charge_timer = num_turns
-            self.can_act = False
 
     def decrement_charge_timer_and_attack_if_ready(self):
         # Decrement charge timer (if active) and attack when it hits 0
@@ -79,7 +75,6 @@ class Unit:
             if self.charge_timer == 0:
                 dmg = (self.charge_strength + 1) * (self.charge_strength + 2) / 2
                 self.attack(int(dmg))
-                self.can_act = True
                 self.charge_strength = 0
 
     def damage(self, dmg):
@@ -98,3 +93,7 @@ class Unit:
     def get_turn_number(self):
         # Return the number of turns this unit has been alive
         return self.unit_turn_number
+
+    def can_act(self):
+        return self.spawn_timer == 0 \
+               and self.charge_timer == 0

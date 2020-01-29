@@ -9,7 +9,7 @@ def critical_action(func):
     @wraps(func)
     def decorated(self, *args, **kwargs):
         if self.turn_handler.performed_critical_action is True \
-                or self.turn_handler.current_unit().can_act is False:
+                or self.turn_handler.current_unit().can_act() is False:
             return None
         self.turn_handler.performed_critical_action = True
         return func(self, *args, **kwargs)
