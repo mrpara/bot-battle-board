@@ -70,6 +70,7 @@ Forfeit the current turn.
 These commands perform logic/arithmetic operations (such as addition), or return information such as the number of enemies surrounding the bot or the total number of allies it has (other bots owned by the same player). They do not perform any "action", such as attacking or defending. 
 
 > define(variable_name, value)
+
 Define a new variable with some value. The "value" may also be the return value of a different function. Note that **variables are "remembered" by each unit separately**. If a bot efines a variable with some value, and later a different bot defines the variable with a different value (for example, if both define a variable x with the value num_adjacent_allies() which is different for each bot), each will have their own "version" of the variable. Variable values are remembered across turns of the same unit, as long as it is not redefined. Repeated calls of define with the same variable name will simply overwrite the existing value.
 
 Clever usage along with the get_turn_number() function described below will allow bots to account for change in their state between turns, but be careful not to attempt to use the value of a variable that has not yet been defined as this will result in your script failing and returning an error.
