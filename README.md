@@ -47,6 +47,18 @@ The bot moves to one random free adjacent tile (if one exists; note that bots ma
 
 > spawn()
 
-Forfeit the current turn and the next two turns. In the beginning of the first turn after that, a new unit (with 3 hp) is spawned in an adjacent free tile (if one exists). The new unit is placed at the end of the turn queue, meaning it will only have its first turn after one more round has passed.
+Forfeit the current turn and the next two turns. In the beginning of the first turn after that, a new unit (with 3 hp) is spawned in an adjacent free tile (if one exists). The new unit is placed at the end of the turn queue, meaning it will only have its first turn at the end of the round.
 
->
+> charge_attack(num)
+
+The unit forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by the 1 more point than the previous turn. For example, 
+>charge_attack(1)
+
+will cause the unit to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage
+>charge_attack(2) 
+
+forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage
+
+>charge_attack(3) 
+
+forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
