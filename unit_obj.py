@@ -17,6 +17,7 @@ class Unit:
         self.spawn_timer = 0
         self.charge_timer = 0
         self.charge_strength = 0
+        self.unit_turn_number = 0
         self.can_act = True
         self.defending = False
 
@@ -28,6 +29,7 @@ class Unit:
 
     def on_new_turn(self):
         # Reset or update relevant state variables
+        self.unit_turn_number += 1
         self.defending = False
         self.decrement_spawn_timer_and_spawn_if_ready()
         self.decrement_charge_timer_and_attack_if_ready()
@@ -92,3 +94,7 @@ class Unit:
     def fortify(self):
         # Fortify command: gain 1 hp
         self.hp += 1
+
+    def get_turn_number(self):
+        # Return the number of turns this unit has been alive
+        return self.unit_turn_number

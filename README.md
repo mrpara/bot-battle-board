@@ -1,7 +1,7 @@
 # bot-battle-board
 ## What is it?
 Bot-Battle-Board (name tentative) is a programming game, where two or more players compete to see whose bots can beat the others'. The players do not manuall control these bots. Instead, they write a set of instructions for them using a simple programming language, and these bots simply perform the instructions given to them.
-## How do you play?
+## How do I play?
 The rules are very simple. Each player starts with 1 bot, randomly placed somewhere on the board (default board size is 20 by 20 tiles, but may be changed as desired). Each bot begins with 3 points of health (hp). The bots take turns performing the instructions given to them by the players. The game ends either when only one player has any remaining bots, or when the turn limit has passed (default is 10,000 turns, but this is also configurable). If the turn limit is reached, the player with the most active bots wins.
 
 There are two important things to know. The first is that the edges of the board wrap around. A bot on the leftmost side of the board taking a step to the left will emerge on the right side of the board. A unit on the top-left corner of the board may attack a unit on the bottom-right, since it is considered adjacent to it (since it is only one diagonal move away).
@@ -24,7 +24,7 @@ Is not a valid command, because the command must end with parentheses.
 
 Is **also not a valid command**, because the add function expects exactly two arguments.
 
-Commands are split into two categories: critical and non-critical commands. Critical commands, such as attack(), may only be performed once per turn. Once they are performed, the bot may not take any further critical action until the next turn. Non-critical actions may be used as many times as desired. Examples of such commands are the aforementioned add(a, b) which simply returns the value of a + b, and also distance_from_closest_enemy(), which returns the distance between the unit and its closest enemy.
+Commands are split into two categories: critical and non-critical commands. Critical commands, such as attack(), may only be performed once per turn. Once they are performed, the bot may not take any further action until the next turn. Non-critical commands may be used as many times as desired. Examples of such commands are the aforementioned add(a, b) which simply returns the value of a + b, and distance_from_closest_enemy() which returns the distance between the bot and its closest enemy (a bot belonging to a different player).
 An example strategy would be:
 ```
 define(x, distance_from_closest_enemy())
@@ -37,9 +37,11 @@ Note that even though the move() command is not inside an 'if' statement, it wil
 ## What commands are available for my bots?
 Following is a list of commands available to the player:
 ### Critical commands
+After executing one of these commands, no others may be used in the same turn. Non-critical commands may still be used.
+
 > attack()
 
-This command attacks a random adjacent enemy (if one exists) for 1 point of damage.
+This command attacks a random adjacent enemy (if one exists) for 1 point of damage. A unit whose hp reaches 0 is destroyed.
 
 > move()
 
@@ -51,7 +53,7 @@ Forfeit the current turn and the next two turns. In the beginning of the first t
 
 > charge_attack(num)
 
-The bot forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by the 1 more point than the previous turn. For example, charge_attack(1) will cause the bot to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage. charge_attack(2) forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage. charge_attack(3) forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
+The bot forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by 1 point more than the previous turn. For example, charge_attack(1) will cause the bot to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage. charge_attack(2) forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage. charge_attack(3) forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
 
 > defend()
 
@@ -64,3 +66,95 @@ The bot gains 1 hp. There is no upper limit to the total hp allowed for a bot.
 > wait()
 
 Forfeit the current turn.
+### Non-critical commands
+These commands perform logic/arithmetic operations (such as addition), or return information such as the number of enemies surrounding the bot or the total number of allies it has (other bots owned by the same player). They do not perform any "action", such as attacking or defending. 
+
+> define(variable_name, value)
+Define a new variable with some value. The "value" may also be the return value of a different function. Note that **variables are "remembered" by each unit separately**. If a bot efines a variable with some value, and later a different bot defines the variable with a different value (for example, if both define a variable x with the value num_adjacent_allies() which is different for each bot), each will have their own "version" of the variable. Variable values are remembered across turns of the same unit, as long as it is not redefined. Repeated calls of define with the same variable name will simply overwrite the existing value.
+
+Clever usage along with the get_turn_number() function described below will allow bots to account for change in their state between turns, but be careful not to attempt to use the value of a variable that has not yet been defined as this will result in your script failing and returning an error.
+
+> get_turn_number()
+
+Return the number of turns that this bot has had. Returns 1 in the bot's first turn, 2 in its second, etc. May be used to avoid referring to variables which might not have been defined in the first turn.
+
+> if(predicate, if_true)
+
+This command checks if the predicate is true, and executes the if_true argument if it is. Note that the if_true argument may contain several commands! For example, the following is a valid usage of if:
+```
+if(eq(x, 1),
+	define(y, add(x, 2))
+	move() )
+```
+This code checks if the variable x is equal to 1, and if it is then it defines a new variable y equal to x + 2, and then executes the move command. The tabs and linebreaks are purely for readability. The code is equivalent to 
+```
+if(eq(x, 1), define(y, add(x, 2)) move())
+```
+
+> if_else(predicate, if_true, if_false)
+
+Exactly the same as the if() command, but takes another argument if_false which is executed if the predicate is false.
+
+> num_adjacent_allies()
+
+Returns the number of adjacent (one tile away) bots owned by the same player.
+
+> num_adjacent_enemies()
+
+Returns the number of adjacent (one tile away) bots owned by a different player.
+
+> num_total_allies()
+
+Returns the total number of bots owned by the same player (minus one, since it does not include the bot itself).
+
+> num_total_enemies()
+
+Returns the total number of bots owned by a different player.
+
+> distance_from_closest_ally()
+
+Returns the distance from the closest bot owned by the same player. Distance is defined as the minimum number of tiles required to move in order to reach the other unit. A unit 3 tiles away vertically and 8 tiles away horizontally, for example, would be at a distance of 8 since it cannot be reached in less than 8 moves. If no ally exists on the board, this command returns a number larger than the board itself.
+
+> distance_from_closest_enemy()
+
+Returns the distance from the closest bot owned by a different player. Distance is defined the same as for distance_from_closest_ally().
+
+> add(a, b)
+
+Returns the value of a + b.
+
+> sub(a, b)
+
+Returns the value of a - b.
+
+> mul(a, b)
+
+Returns the value of a * b.
+
+> div(a, b)
+
+Returns the value of a / b. May be a floating point number.
+
+> eq(a, b)
+
+Returns true if a = b, false otherwise.
+
+> gt(a, b)
+
+Returns true if a > b, false otherwise.
+
+> gqt(a, b)
+
+Returns true if a >= b, false otherwise.
+
+> lt(a, b)
+
+Returns true if a < b, false otherwise.
+
+> lqt(a, b)
+
+Returns true if a <= b, false otherwise.
+
+> neg(a)
+
+Returns true if a is false, or false if a is true. For example neg(gt(a, b)) checks if a is NOT greater than b, and is equivalent to lqt(a, b).

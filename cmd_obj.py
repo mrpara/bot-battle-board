@@ -104,6 +104,9 @@ class Commands:
     def get_unit_id(self):
         return self.turn_handler.current_unit().id
 
+    def get_turn_number(self):
+        return self.turn_handler.current_unit().get_turn_number()
+
     def num_adjacent_allies(self):
         return self.board.num_allies_around_unit(self.turn_handler.current_unit())
 
@@ -180,6 +183,6 @@ class Commands:
     def neg(a):
         return not a
 
-    # @staticmethod
-    # def prnt(a):
-    #     Feedback().display_message(a)
+    @staticmethod
+    def prnt(a):
+        Feedback().display_message(a)
