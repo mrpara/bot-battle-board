@@ -51,14 +51,4 @@ Forfeit the current turn and the next two turns. In the beginning of the first t
 
 > charge_attack(num)
 
-The unit forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by the 1 more point than the previous turn. For example, 
->charge_attack(1)
-
-will cause the unit to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage
->charge_attack(2) 
-
-forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage
-
->charge_attack(3) 
-
-forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
+The unit forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by the 1 more point than the previous turn. For example, charge_attack(1) will cause the unit to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage. charge_attack(2) forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage. charge_attack(3) forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
