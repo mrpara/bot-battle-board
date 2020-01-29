@@ -3,6 +3,7 @@ from typing import Union
 from unit_obj import Unit
 from random import choice
 from feedback_obj import Feedback
+from math import ceil
 
 
 class Board:
@@ -11,11 +12,12 @@ class Board:
 
     board_matrix: List[List[Union[Unit, None]]]  # Type hinting
 
-    def __init__(self, turn_handler, players, board_size):
+    def __init__(self, turn_handler, players, board_size, unit_limit_pct):
         # Board initialization
         self.turn_handler = turn_handler
         self.players = players
         self.board_size = board_size
+        self.unit_limit = ceil(board_size[0] * board_size[1] * unit_limit_pct)
         self.board_matrix = [[None for _ in range(self.board_size[1])] for _ in range(self.board_size[0])]
         self.num_total_units_spawned = 0
 
@@ -24,8 +26,15 @@ class Board:
     ####################################################################################################################
 
     def spawn_unit(self, player_id, loc):
+        # Add new unit to board
         if not self.is_free(loc):
             raise Exception("Cannot spawn unit in location " + str(loc) + " since it is occupied")
+
+        if self.players[player_id].num_units() >= self.unit_limit:
+            Feedback().display_message("Player " + str(player_id) +
+                                       " attempted to spawn new unit, but has reached the spawn limit.")
+            return
+
         self.num_total_units_spawned += 1
         unit_id = self.num_total_units_spawned
         new_unit = Unit(self, unit_id, player_id, loc)
@@ -36,6 +45,7 @@ class Board:
                                    " in location " + str(loc))
 
     def despawn_unit(self, unit):
+        # Remove unit from board
         loc = unit.loc
         self.board_matrix[loc[0]][loc[1]] = None
         self.turn_handler.remove_from_queue(unit)

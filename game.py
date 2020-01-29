@@ -17,16 +17,18 @@ class Game:
         # DEFAULT PARAMETERS
         self.num_players = 2
         self.board_size = [20, 20]
-        self.turn_limit = 50
+        self.turn_limit = 50000
+        self.unit_limit_pct = 0.05  # The maximum number of allowed units per player, as a percentage of board capacity
         self.display_messages = True
-        self.display_board = True
+        self.display_board = False
         self.default_path = "C:/Users/user1/Dropbox/bot-battle-board"
 
         # OBJECT INITIALIZATION
         self.players = {}  # Dict of players, player_id -> player_object
         Feedback(self.display_messages, self.display_board)
         self.turn_handler = turn_handler.TurnHandler()  # Turn handler in charge of determining which unit acts when
-        self.board = board_obj.Board(self.turn_handler, self.players, self.board_size)  # Board and units
+        self.board = board_obj.Board(self.turn_handler, self.players,
+                                     self.board_size, self.unit_limit_pct)  # Board and units
         self.user_commands = cmd_obj.Commands(self.board, self.turn_handler)
         self.interpreter = interpreter.Interpreter(self.turn_handler, self.user_commands)
 

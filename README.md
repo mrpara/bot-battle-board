@@ -1,12 +1,14 @@
 # bot-battle-board
 ## What is it?
-Bot-Battle-Board (name tentative) is a programming game, where two or more players compete to see whose bots can beat the others'. The players do not manuall control these bots. Instead, they write a set of instructions for them using a simple programming language, and these bots simply perform the instructions given to them.
+Bot-Battle-Board (name tentative) is a programming game, where two or more players compete to see whose bots can beat the others'. The players do not manually control these bots. Instead, they write a set of instructions for them using a simple programming language, and these bots simply perform the instructions given to them.
 ## How do I play?
-The rules are very simple. Each player starts with 1 bot, randomly placed somewhere on the board (default board size is 20 by 20 tiles, but may be changed as desired). Each bot begins with 3 points of health (hp). The bots take turns performing the instructions given to them by the players. The game ends either when only one player has any remaining bots, or when the turn limit has passed (default is 10,000 turns, but this is also configurable). If the turn limit is reached, the player with the most active bots wins.
+The rules are very simple. Each player starts with 1 bot, randomly placed somewhere on the board (default board size is 20 by 20 tiles, but may be changed as desired). Each bot begins with 3 points of health (hp). The bots take turns performing the instructions given to them by the players. The game ends either when only one player has any remaining bots, or when the turn limit has passed (default is 10,000 turns total among all bots, but this is also configurable). If the turn limit is reached, the player with the most active bots wins.
 
-There are two important things to know. The first is that the edges of the board wrap around. A bot on the leftmost side of the board taking a step to the left will emerge on the right side of the board. A unit on the top-left corner of the board may attack a unit on the bottom-right, since it is considered adjacent to it (since it is only one diagonal move away).
+There are a few important things to know. The first is that the edges of the board wrap around. A bot on the leftmost side of the board taking a step to the left will emerge on the right side of the board. A unit on the top-left corner of the board may attack a unit on the bottom-right, as it is considered adjacent to it (since it is only one diagonal move away).
 
-The second important thing is that you do not have full control of your bots. Most commands contain some element of randomness. The move() command will move the bot to a **random** adjacent tile (if there is at least one free such tile). The attack() command will attack one random adjacent enemy (if there is more than one), etc. It is advised to think of your bots as an erratic swarm of living cells, and write a strategy that leverages this.
+Another important thing is that you do not have full control of your bots. Most commands contain some element of randomness. The move() command will move the bot to a **random** adjacent tile (if there is at least one free such tile). The attack() command will attack one random adjacent enemy (if there is more than one), etc. It is advised to think of your bots as an erratic swarm of living cells, and write a strategy that leverages this.
+
+Your bots may also spawn new bots via the spawn() command (see below for a full explanation), but beware that there is a limit to the amount of bots on the board per player. By default, the limit is set to 5% of the board capacity (for a 20 by 20 board with 400 tiles total, this means 20 bots per player).
 
 You can start a game by running the game.py file. You will then be prompted to select text files to read, once per player. These must contain the instructions for the player's bots. The game will then begin, and a turn-by-turn record of the battle (and its conclusion) will be displayed.
 ## How do I tell the bots what to do?
@@ -49,7 +51,7 @@ The bot moves to one random free adjacent tile (if one exists; note that bots ma
 
 > spawn()
 
-Forfeit the current turn and the next two turns. In the beginning of the first turn after that, a new bot (with 3 hp) is spawned in an adjacent free tile (if one exists). The new bot is placed at the end of the turn queue, meaning it will only have its first turn at the end of the round.
+Forfeit the current turn and the next two turns. In the beginning of the first turn after that, a new bot (with 3 hp) is spawned in an adjacent free tile (if one exists). The new bot is placed at the end of the turn queue, meaning it will only have its first turn at the end of the round. Note that this will only spawn new bots up to the bot limit (by default, 5% of the number of total tiles on the board per player). Past that limit, no new units will be spawned (but the bot will still forfeit three turns, so beware)!
 
 > charge_attack(num)
 
