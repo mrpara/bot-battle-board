@@ -47,8 +47,20 @@ The bot moves to one random free adjacent tile (if one exists; note that bots ma
 
 > spawn()
 
-Forfeit the current turn and the next two turns. In the beginning of the first turn after that, a new unit (with 3 hp) is spawned in an adjacent free tile (if one exists). The new unit is placed at the end of the turn queue, meaning it will only have its first turn at the end of the round.
+Forfeit the current turn and the next two turns. In the beginning of the first turn after that, a new bot (with 3 hp) is spawned in an adjacent free tile (if one exists). The new bot is placed at the end of the turn queue, meaning it will only have its first turn at the end of the round.
 
 > charge_attack(num)
 
-The unit forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by the 1 more point than the previous turn. For example, charge_attack(1) will cause the unit to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage. charge_attack(2) forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage. charge_attack(3) forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
+The bot forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by the 1 more point than the previous turn. For example, charge_attack(1) will cause the bot to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage. charge_attack(2) forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage. charge_attack(3) forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
+
+> defend()
+
+If the bot is attacked between now and its next turn, it will block the first attack made against it (regardless of how much damage it might inflict). If the bot is attacked more than once, only the first attack is blocked.
+
+> fortify()
+
+The bot gains 1 hp. There is no upper limit to the total hp allowed for a bot.
+
+> wait()
+
+Forfeit the current turn.
