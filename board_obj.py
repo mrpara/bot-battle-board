@@ -196,3 +196,7 @@ class Board:
         ydist_abs = abs(loc1[1] - loc2[1])
         ydist = min(ydist_abs, self.board_size[1] - ydist_abs)
         return max(xdist, ydist)
+
+    def get_unit_limit(self):
+        # Return the unit limit
+        return self.unit_limit

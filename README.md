@@ -75,7 +75,7 @@ These commands perform logic/arithmetic operations (such as addition), or return
 
 > define(variable_name, value)
 
-Define a new variable with some value. The "value" may also be the return value of a different function. Note that **variables are "remembered" by each unit separately**. If a bot efines a variable with some value, and later a different bot defines the variable with a different value (for example, if both define a variable x with the value num_adjacent_allies() which is different for each bot), each will have their own "version" of the variable. Variable values are remembered across turns of the same unit, as long as it is not redefined. Repeated calls of define with the same variable name will simply overwrite the existing value.
+Define a new variable with some value. The "value" may also be the return value of a different function. Note that **variables are "remembered" by each unit separately**. If a bot efines a variable with some value, and later a different bot defines the variable with a different value (for example, if both define a variable x with the value num_adjacent_allies() which is different for each bot), each will have their own "version" of the variable. Variable values are remembered across turns of the same unit, as long as it is not redefined. Repeated calls of define with the same variable name will simply overwrite the existing value. Variable names must be alphanumeric.
 
 Clever usage along with the get_turn_number() function described below will allow bots to account for change in their state between turns, but be careful not to attempt to use the value of a variable that has not yet been defined as this will result in your script failing and returning an error.
 
@@ -99,6 +99,14 @@ if(eq(x, 1), define(y, add(x, 2)) move())
 > if_else(predicate, if_true, if_false)
 
 Exactly the same as the if() command, but takes another argument if_false which is executed if the predicate is false.
+
+> and(a, b)
+
+Returns the logical and operation of a and b.
+
+> or(a, b)
+
+Returns the logical or operation of a and b.
 
 > num_adjacent_allies()
 

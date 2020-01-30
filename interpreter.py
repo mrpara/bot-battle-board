@@ -174,6 +174,12 @@ class Interpreter:
                 # blank else clause. This saves us from having to implement both functions, as well as avoids problems
                 # with the "if" command shadowing python's
 
+                if cmd == "and":
+                    cmd = "i_and"
+                if cmd == "or":
+                    cmd == "i_or"
+                # Avoid shadowing with and/or commands
+
                 self.commands.verify_command(cmd, args)
                 exprs_processed.append((lambda xcmd, xargs: lambda: self.eval_and_exec(xcmd, xargs))(cmd, args))
                 # Important: This double-lambda construct is here because python evaluates variables on execution

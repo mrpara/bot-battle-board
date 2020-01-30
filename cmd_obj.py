@@ -125,6 +125,9 @@ class Commands:
     def distance_from_closest_enemy(self):
         return self.board.distance_from_closest_enemy(self.turn_handler.current_unit())
 
+    def get_unit_limit(self):
+        return self.board.get_unit_limit()
+
     ####################################################################################################################
     # Arithmetic and general commands
     ####################################################################################################################
@@ -180,9 +183,17 @@ class Commands:
         return a <= b
 
     @staticmethod
+    def i_and(a, b):
+        return a and b
+
+    @staticmethod
+    def i_or(a, b):
+        return a or b
+
+    @staticmethod
     def neg(a):
         return not a
 
     @staticmethod
     def prnt(a):
-        Feedback().display_message(a)
+        Feedback().display_message(str(a))

@@ -17,7 +17,7 @@ class Game:
         # DEFAULT PARAMETERS
         self.num_players = 2
         self.board_size = [20, 20]
-        self.turn_limit = 5000
+        self.turn_limit = 10000
         self.unit_limit_pct = 0.05  # The maximum number of allowed units per player, as a percentage of board capacity
         self.display_messages = True
         self.display_board = True
