@@ -38,7 +38,7 @@ move()
 ```
 This simple strategy first defines a new variable called x, and determines its value to be the distance from the closest enemy. It then checks if x = 1 (i.e. we are adjacent to an enemy). If true, then it attacks. If x > 3, meaning the closest enemy is more than three tiles away, then spawn a new unit (the spawn command disables the bot for three turns, after which a new bot is spawned next to it). Finally, if x is not 1, but also not larger than 3 (i.e. if x is 2 or 3), then move to a random adjacent tile.
 Note that even though the move() command is not inside an 'if' statement, it will only be performed if the previous two conditions are not met. This is because attack(), spawn() and move() are all critical commands, and so if for example x = 1 and the unit attacks, it will not be able to move in the same turn.
-## What commands are available for my bots?
+## What commands are available to my bots?
 Following is a list of commands available to the player:
 ### Critical commands
 After executing one of these commands, no others may be used in the same turn. Non-critical commands may still be used.
