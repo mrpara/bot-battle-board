@@ -108,6 +108,10 @@ Returns the logical and operation of a and b.
 
 Returns the logical or operation of a and b.
 
+> get_unit_limit()
+
+Returns the maximum allowed number of bots per player.
+
 > num_adjacent_allies()
 
 Returns the number of adjacent (one tile away) bots owned by the same player.
