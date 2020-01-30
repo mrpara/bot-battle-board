@@ -177,7 +177,7 @@ class Interpreter:
                 if cmd == "and":
                     cmd = "i_and"
                 if cmd == "or":
-                    cmd == "i_or"
+                    cmd = "i_or"
                 # Avoid shadowing with and/or commands
 
                 self.commands.verify_command(cmd, args)
