@@ -162,7 +162,7 @@ class Board:
         adjacent_locs = self.get_all_adjacent_locs(loc)
         n = 0
         for adjacent_loc in adjacent_locs:
-            if f_bool(adjacent_loc) is True:
+            if f_bool(adjacent_loc):
                 n += 1
         return n
 
@@ -171,7 +171,7 @@ class Board:
         adjacent_locs = self.get_all_adjacent_locs(loc)
         instances = []
         for adjacent_loc in adjacent_locs:
-            if f_bool(adjacent_loc) is True:
+            if f_bool(adjacent_loc):
                 instances.append(adjacent_loc)
         return instances
 

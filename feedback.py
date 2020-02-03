@@ -15,18 +15,18 @@ class Feedback(metaclass=Singleton):
         self.display_board = display_board
         self.write_to_file = write_to_file
         self.file_path = file_path
-        if write_to_file is True:
+        if write_to_file:
             open(self.file_path, 'w').close()
 
     def display_message(self, message):
-        if self.display_messages is True:
+        if self.display_messages:
             print(message)
         self.to_file(message + '\n')
 
     def print_board(self, board):
         # Print the board_matrix matrix nicely formatted
         # Code taken from https://stackoverflow.com/questions/13214809/pretty-print-2d-python-list/32159502
-        if self.display_board is True or self.write_to_file is True:
+        if self.display_board or self.write_to_file:
             output_mtx = []
             for row in board.board_matrix:
                 output_mtx.append(['X' if elem is None else elem.id for elem in row])
@@ -36,9 +36,9 @@ class Feedback(metaclass=Singleton):
             table = [fmt.format(*row) for row in s]
             table_formatted = '\n'.join(table)
 
-            if self.display_board is True:
+            if self.display_board:
                 print(table_formatted)
-            if self.write_to_file is True:
+            if self.write_to_file:
                 self.to_file(table_formatted + '\n')
 
     def to_file(self, message):

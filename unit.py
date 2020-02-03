@@ -80,7 +80,7 @@ class Unit:
     def damage(self, dmg):
         # Unit is under attack for dmg points of damage. Check if unit is defending. If it is, break defense.
         # Otherwise, unit hp is decremented
-        if self.defending is True:
+        if self.defending:
             self.defending = False
             Feedback().display_message("Unit " + str(self.id) + " defense broken")
             return
