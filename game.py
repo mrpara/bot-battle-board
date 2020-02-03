@@ -8,9 +8,6 @@ import tkinter as tk
 from tkinter import filedialog
 from random import randint
 
-root = tk.Tk()  # Prevents blank window from showing up because of the call to filedialog
-root.withdraw()
-
 
 class Game:
     def __init__(self):
@@ -22,7 +19,7 @@ class Game:
         self.display_messages = True
         self.display_board = True
         self.write_to_file = False
-        self.default_path = "C:/Users/user1/Dropbox/bot-battle-board"
+        self.default_path = "C:/Users/user1/Dropbox/strategies/bot-battle-board"
         self.log_path = "log.txt"
 
         # OBJECT INITIALIZATION
@@ -119,5 +116,9 @@ class Game:
         self.announce_winner()
 
 
-a = Game()
-a.start_game()
+if __name__ == "__main__":
+    root = tk.Tk()  # Prevents blank window from showing up because of the call to filedialog
+    root.withdraw()
+
+    game = Game()
+    game.start_game()
