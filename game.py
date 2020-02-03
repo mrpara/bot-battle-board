@@ -72,8 +72,8 @@ class Game:
     def remove_losing_players(self):
         # Check if any players have had all of their units destroyed, and remove them from the players list
         players_to_remove = []
-        for player_id in self.players:
-            if self.players[player_id].num_units() == 0:
+        for player_id, player in self.players.items():
+            if player.num_units() == 0:
                 players_to_remove.append(player_id)
                 Feedback().display_message("Player " + str(player_id) + " eliminated")
         for player_id in players_to_remove:
