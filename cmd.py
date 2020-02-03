@@ -16,27 +16,32 @@ def critical_action(func):
     return decorated
 
 
+class CommandsInspector:
+    # This class has methods for verification and execution of user commands in the commands class below.
+    # It is separated from the main class in order to not allow the user access to these methods.
+
+    @staticmethod
+    def verify_commands(command_object, cmd, args):
+        # Check that input command is defined in this class, and correct number of arguments is provided
+        # This prevents users from executing general python commands
+        try:
+            num_expected_args = len(inspect.signature(getattr(command_object, cmd)).parameters)
+        except AttributeError:
+            raise Exception("Unknown command " + cmd + "()!")
+        if len(args) != num_expected_args:
+            raise Exception("Invalid number of arguments; expected " + str(num_expected_args)
+                            + " and got " + str(len(args)))
+
+    @staticmethod
+    def execute_command(command_object, cmd, args):
+        return getattr(command_object, cmd)(*args)
+
+
 class Commands:
     # This class handles verification and execution of allowable user-input commands
     def __init__(self, board, turn_handler):
         self.board = board
         self.turn_handler = turn_handler
-
-    def verify_command(self, cmd, args):
-        # Check that input command is defined in this class, and correct number of arguments is provided
-        # This prevents users from executing general python commands
-        try:
-            num_expected_args = len(inspect.signature(getattr(self, cmd)).parameters)
-        except AttributeError:
-            raise Exception("Unknown command " + cmd + "()!")
-        if cmd == "execute_command" or cmd == "verify_command":
-            raise Exception("Command unavailable to user")
-        if len(args) != num_expected_args:
-            raise Exception("Invalid number of arguments; expected " + str(num_expected_args)
-                            + " and got " + str(len(args)))
-
-    def execute_command(self, cmd, args):
-        return getattr(self, cmd)(*args)
 
     ####################################################################################################################
     # USER COMMANDS

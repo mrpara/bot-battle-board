@@ -1,4 +1,5 @@
 import re
+from cmd import CommandsInspector
 
 
 class Interpreter:
@@ -111,7 +112,7 @@ class Interpreter:
             args_eval[idx] = arg()
             if self.is_symbol(args_eval[idx]):
                 args_eval[idx] = self.get_symbol_value(args_eval[idx])
-        return self.commands.execute_command(cmd, args_eval)
+        return CommandsInspector.execute_command(self.commands, cmd, args_eval)
 
     def eval_and_exec_define(self, cmd, args):
         # Define is a special case since it expects the first argument to be an undefined symbol, so we must not
@@ -121,7 +122,7 @@ class Interpreter:
             args_eval[idx] = arg()
         if self.is_symbol(args_eval[1]):
             args_eval[1] = self.get_symbol_value(args_eval[1])
-        return self.commands.execute_command(cmd, args_eval)
+        return CommandsInspector.execute_command(self.commands, cmd, args_eval)
 
     def eval_and_exec_if_else(self, cmd, args):
         # If statements are a special case since we only want to execute the lambdas of the arguments based on the
@@ -131,7 +132,7 @@ class Interpreter:
         args_eval[0] = args_eval[0]()
         if self.is_symbol(args_eval[0]):
             args_eval[0] = self.get_symbol_value(args_eval[0])
-        return self.commands.execute_command(cmd, args_eval)
+        return CommandsInspector.execute_command(self.commands, cmd, args_eval)
 
     def eval_and_exec(self, cmd, args):
         # Command execution requires special handling for define and if statements
@@ -179,8 +180,8 @@ class Interpreter:
                 if cmd == "or":
                     cmd = "i_or"
                 # Avoid shadowing with and/or commands
-
-                self.commands.verify_command(cmd, args)
+                CommandsInspector.verify_commands(self.commands, cmd, args)
+                # self.commands.verify_command(cmd, args)
                 exprs_processed.append((lambda xcmd, xargs: lambda: self.eval_and_exec(xcmd, xargs))(cmd, args))
                 # Important: This double-lambda construct is here because python evaluates variables on execution
                 # and not on definition. Without this, other processed statements which return a lambda function will
