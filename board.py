@@ -76,7 +76,7 @@ class Board:
     def num_allies_around_unit(self, unit):
         loc = unit.loc
         player_id = unit.player_id
-        return self.count_adjacent_locs_that_satisfy_bool(loc, lambda tloc: self.is_ally(tloc, player_id))
+        return self.count_adjacent_locs(loc, lambda tloc: self.is_ally(tloc, player_id))
 
     def num_enemies_around_unit(self, unit):
         return 8 - self.num_free_tiles_around_unit(unit) - self.num_allies_around_unit(unit)
@@ -126,23 +126,29 @@ class Board:
         return unit_in_loc is not None and unit_in_loc.player_id != player_id
 
     def get_all_adjacent_locs(self, loc):
-        adjacent_locs = []
-        for x_adj in [-1, 0, 1]:
-            for y_adj in [-1, 0, 1]:
+        adjacent_locs = [None, None, None, None, None, None, None, None]  # Preallocate list for efficiency
+        for x_id, x_adj in enumerate([-1, 0, 1]):
+            for y_id, y_adj in enumerate([-1, 0, 1]):
                 locx = (loc[0] + x_adj + self.board_size[0]) % self.board_size[0]
                 locy = (loc[1] + y_adj + self.board_size[1]) % self.board_size[1]
-                if x_adj != 0 or y_adj != 0:
-                    adjacent_locs.append([locx, locy])
+
+                # Calculate index in list of the location. Ignore the middle spot (since it is not "adjacent"), and
+                # shift all indices after it by -1 to compensate
+                idx = x_id * 3 + y_id
+                if idx < 4:
+                    adjacent_locs[idx] = [locx, locy]
+                elif idx > 4:
+                    adjacent_locs[idx - 1] = [locx, locy]
         return adjacent_locs
 
     def get_free_adjacent_loc(self, loc):
-        free_adjacent_locs = self.get_adjacent_locs_that_satisfy_bool(loc, self.is_free)
+        free_adjacent_locs = self.get_adjacent_locs(loc, self.is_free)
         if len(free_adjacent_locs) == 0:
             return None
         return choice(free_adjacent_locs)
 
     def num_free_tiles_around_loc(self, loc):
-        return self.count_adjacent_locs_that_satisfy_bool(loc, self.is_free)
+        return self.count_adjacent_locs(loc, self.is_free)
 
     def num_free_tiles_around_unit(self, unit):
         loc = unit.loc
@@ -152,29 +158,20 @@ class Board:
         return self.board_matrix[loc[0]][loc[1]]
 
     def get_adjacent_enemy_unit(self, unit):
-        enemy_locs = self.get_adjacent_locs_that_satisfy_bool(unit.loc,
-                                                              lambda tloc: self.is_enemy(tloc, unit.player_id))
+        enemy_locs = self.get_adjacent_locs(unit.loc,
+                                            lambda tloc: self.is_enemy(tloc, unit.player_id))
         if len(enemy_locs) == 0:
             return None
         return self.get_unit_in_loc(choice(enemy_locs))
 
-    def count_adjacent_locs_that_satisfy_bool(self, loc, f_bool):
+    def count_adjacent_locs(self, loc, f_bool=lambda x: True):
         # Get a location and a boolean function, and count the number of adjacent locations that satisfy the function
-        adjacent_locs = self.get_all_adjacent_locs(loc)
-        n = 0
-        for adjacent_loc in adjacent_locs:
-            if f_bool(adjacent_loc):
-                n += 1
-        return n
+        return len(self.get_adjacent_locs(loc, f_bool))
 
-    def get_adjacent_locs_that_satisfy_bool(self, loc, f_bool):
+    def get_adjacent_locs(self, loc, f_bool=lambda x: True):
         # Get a location and a boolean function, and return all adjacent locations that satisfy the function
         adjacent_locs = self.get_all_adjacent_locs(loc)
-        instances = []
-        for adjacent_loc in adjacent_locs:
-            if f_bool(adjacent_loc):
-                instances.append(adjacent_loc)
-        return instances
+        return [adjacent_loc for adjacent_loc in adjacent_locs if f_bool(adjacent_loc)]
 
     def get_all_enemies(self, unit):
         return [t_unit
