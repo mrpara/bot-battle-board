@@ -1,8 +1,8 @@
 from typing import List
 from typing import Union
-from unit_obj import Unit
+from unit import Unit
 from random import choice
-from feedback_obj import Feedback
+from feedback import Feedback
 from math import ceil
 
 

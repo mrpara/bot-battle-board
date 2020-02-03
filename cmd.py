@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from feedback_obj import Feedback
+from feedback import Feedback
 
 
 def critical_action(func):

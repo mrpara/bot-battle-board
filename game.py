@@ -1,9 +1,9 @@
 import interpreter
-import board_obj
+import board
 import turn_handler
-import player_obj
-import cmd_obj
-from feedback_obj import Feedback
+import player
+import cmd
+from feedback import Feedback
 import tkinter as tk
 from tkinter import filedialog
 from random import randint
@@ -29,9 +29,9 @@ class Game:
         self.players = {}  # Dict of players, player_id -> player_object
         Feedback(self.display_messages, self.display_board, self.write_to_file, self.log_path)
         self.turn_handler = turn_handler.TurnHandler()  # Turn handler in charge of determining which unit acts when
-        self.board = board_obj.Board(self.turn_handler, self.players,
-                                     self.board_size, self.unit_limit_pct)  # Board and units
-        self.user_commands = cmd_obj.Commands(self.board, self.turn_handler)
+        self.board = board.Board(self.turn_handler, self.players,
+                                 self.board_size, self.unit_limit_pct)  # Board and units
+        self.user_commands = cmd.Commands(self.board, self.turn_handler)
         self.interpreter = interpreter.Interpreter(self.turn_handler, self.user_commands)
 
     def get_user_input(self):
@@ -46,7 +46,7 @@ class Game:
         # with the resulting instructions
         for i in range(self.num_players):
             bot_cmds = self.get_user_input()
-            self.players[i + 1] = player_obj.Player(i + 1, self.interpreter.analyze(bot_cmds))
+            self.players[i + 1] = player.Player(i + 1, self.interpreter.analyze(bot_cmds))
 
     def spawn_initial_units(self):
         # For each player, spawn one unit in a random location on the board_matrix. If the location has already
