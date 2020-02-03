@@ -115,21 +115,15 @@ class Board:
         return [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1]) - 1]
 
     def is_free(self, loc):
-        if self.board_matrix[loc[0]][loc[1]] is None:
-            return True
-        return False
+        return self.board_matrix[loc[0]][loc[1]] is None
 
     def is_ally(self, loc, player_id):
         unit_in_loc = self.get_unit_in_loc(loc)
-        if unit_in_loc is not None and unit_in_loc.player_id == player_id:
-            return True
-        return False
+        return unit_in_loc is not None and unit_in_loc.player_id == player_id
 
     def is_enemy(self, loc, player_id):
         unit_in_loc = self.get_unit_in_loc(loc)
-        if unit_in_loc is not None and unit_in_loc.player_id != player_id:
-            return True
-        return False
+        return unit_in_loc is not None and unit_in_loc.player_id != player_id
 
     def get_all_adjacent_locs(self, loc):
         adjacent_locs = []
