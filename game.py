@@ -106,11 +106,14 @@ class Game:
         # Game ends when only one player has surviving units (or if turn limit is reached)
         return len(self.players) == 1
 
+    def game_ended(self):
+        return self.turn_limit_reached() or self.one_player_left()
+
     def start_game(self):
         self.populate_players()
         self.spawn_initial_units()
 
-        while not self.turn_limit_reached() and not self.one_player_left():
+        while not self.game_ended():
             self.turn()
 
         self.announce_winner()
