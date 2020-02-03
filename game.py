@@ -4,14 +4,18 @@ import turn_handler
 import player
 import cmd
 from feedback import Feedback
-import tkinter as tk
-from tkinter import filedialog
+import argparse
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, filepaths):
+        # Verify arguments
+        if len(filepaths) < 2:
+            raise Exception("Game requires at least two players. "
+                            "Provide a filepath for the script used for each player")
+        self.strategy_filepaths = filepaths
+
         # DEFAULT PARAMETERS
-        self.num_players = 2
         self.board_size = [20, 20]
         self.turn_limit = 10000
         self.unit_limit_pct = 0.05  # The maximum number of allowed units per player, as a percentage of board capacity
@@ -30,19 +34,13 @@ class Game:
         self.user_commands = cmd.Commands(self.board, self.turn_handler)
         self.interpreter = interpreter.Interpreter(self.turn_handler, self.user_commands)
 
-    def get_user_input(self):
-        # Read user input script
-        script_path = filedialog.askopenfilename(initialdir=self.default_path, filetypes=[("TXT", "*.txt")])
-        with open(script_path, 'r') as input_file:
-            bot_cmds = input_file.read()
-        return bot_cmds
-
     def populate_players(self):
         # For each player, read their script and analyze it, and create a new player object
         # with the resulting instructions
-        for i in range(self.num_players):
-            bot_cmds = self.get_user_input()
-            self.players[i + 1] = player.Player(i + 1, self.interpreter.analyze(bot_cmds))
+        for idx, path in enumerate(self.strategy_filepaths):
+            with open(path, 'r') as input_file:
+                bot_cmds = input_file.read()
+            self.players[idx + 1] = player.Player(idx + 1, self.interpreter.analyze(bot_cmds))
 
     def spawn_initial_units(self):
         # For each player, spawn one unit in a random location on the board_matrix. If the location has already
@@ -119,8 +117,10 @@ class Game:
 
 
 if __name__ == "__main__":
-    root = tk.Tk()  # Prevents blank window from showing up because of the call to filedialog
-    root.withdraw()
+    # Argument parsing
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--filepaths', nargs='*', help='Filepaths for bot strategy scripts')
+    paths = parser.parse_args().filepaths
 
-    game = Game()
+    game = Game(paths)
     game.start_game()

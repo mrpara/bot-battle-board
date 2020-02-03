@@ -10,7 +10,7 @@ Another important thing is that you do not have full control of your bots. Most 
 
 Your bots may also spawn new bots via the spawn() command (see below for a full explanation), but beware that there is a limit to the amount of bots on the board per player. By default, the limit is set to 5% of the board capacity (for a 20 by 20 board with 400 tiles total, this means 20 bots per player).
 
-You can start a game by running the game.py file. You will then be prompted to select text files to read, once per player. These must contain the instructions for the player's bots. The game will then begin, and a turn-by-turn record of the battle (and its conclusion) will be displayed. 
+You can start a game by running the game.py file, followed by "-f path_1 path_2 ... path_n", with the paths of the files containing the instructions for the bots. The number of players will be determined by the number of files provided. Note that a single path may be provided more than once, meaning the same strategy will be used by more than one player. The game will then begin, and a turn-by-turn record of the battle (and its conclusion) will be displayed. 
 
 You may disable action messages and board display in game.py by setting display_messages and display_board to False. You may also choose to write the match record to a file by setting write_to_file to True and supplying a path. Beware that the resulting text file may be large, depending on the turn limit and the size of the board. This also slows the program considerably.
 ## How do I tell the bots what to do?
