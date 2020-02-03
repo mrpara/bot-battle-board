@@ -67,6 +67,7 @@ class Game:
         self.players[self.turn_handler.current_player()].command_script()
         self.turn_handler.end_turn()
         Feedback().print_board(self.board)
+        self.remove_losing_players()
 
     def remove_losing_players(self):
         # Check if any players have had all of their units destroyed, and remove them from the players list
@@ -111,7 +112,6 @@ class Game:
 
         while not self.turn_limit_reached() and not self.one_player_left():
             self.turn()
-            self.remove_losing_players()
 
         self.announce_winner()
 
