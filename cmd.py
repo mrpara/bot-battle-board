@@ -38,7 +38,7 @@ class CommandsInspector:
 
 
 class Commands:
-    # This class handles verification and execution of allowable user-input commands
+    # This class handles definition of allowable user-input commands
     def __init__(self, board, turn_handler):
         self.board = board
         self.turn_handler = turn_handler
