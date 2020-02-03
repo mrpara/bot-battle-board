@@ -7,11 +7,24 @@ from math import ceil
 from random import randint
 
 
+class BoardMatrix:
+    # A wrapper class for the matrix of elements on the board, which takes as an index a list of two values (x index
+    # and y index)
+    board_matrix: List[List[Union[Unit, None]]]  # Type hinting
+
+    def __init__(self, size):
+        self.board_matrix = [[None for _ in range(size[1])] for _ in range(size[0])]
+
+    def __getitem__(self, loc):
+        return self.board_matrix[loc[0]][loc[1]]
+
+    def __setitem__(self, loc, value):
+        self.board_matrix[loc[0]][loc[1]] = value
+
+
 class Board:
     # This class handles the board_matrix object and the units on it and the manipulation thereof.
     # It also handles all unit- and board_matrix-related commands that should not be directly exposed to the user
-
-    board_matrix: List[List[Union[Unit, None]]]  # Type hinting
 
     def __init__(self, turn_handler, players, board_size, unit_limit_pct):
         # Board initialization
@@ -19,7 +32,7 @@ class Board:
         self.players = players
         self.board_size = board_size
         self.unit_limit = ceil(board_size[0] * board_size[1] * unit_limit_pct)
-        self.board_matrix = [[None for _ in range(self.board_size[1])] for _ in range(self.board_size[0])]
+        self.board_matrix = BoardMatrix(board_size)
         self.num_total_units_spawned = 0
 
         if unit_limit_pct <= 0 or unit_limit_pct > 1:
@@ -42,7 +55,7 @@ class Board:
         self.num_total_units_spawned += 1
         unit_id = self.num_total_units_spawned
         new_unit = Unit(self, unit_id, player_id, loc)
-        self.board_matrix[loc[0]][loc[1]] = new_unit
+        self.board_matrix[loc] = new_unit
         self.turn_handler.add_to_queue(new_unit)
         self.players[player_id].units.add(new_unit)
         Feedback().display_message("New unit " + str(unit_id) + " spawned by player " + str(player_id) +
@@ -51,7 +64,7 @@ class Board:
     def despawn_unit(self, unit):
         # Remove unit from board
         loc = unit.loc
-        self.board_matrix[loc[0]][loc[1]] = None
+        self.board_matrix[loc] = None
         self.turn_handler.remove_from_queue(unit)
         self.players[unit.player_id].units.remove(unit)
 
@@ -66,8 +79,8 @@ class Board:
             raise Exception("Tried to move unit " + str(unit.id) + "to occupied location " + str(new_loc))
         old_loc = unit.loc
         unit.loc = new_loc
-        self.board_matrix[old_loc[0]][old_loc[1]] = None
-        self.board_matrix[new_loc[0]][new_loc[1]] = unit
+        self.board_matrix[old_loc] = None
+        self.board_matrix[new_loc] = unit
 
     ####################################################################################################################
     # Functions for use in user-commands
@@ -115,7 +128,7 @@ class Board:
         return [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1]) - 1]
 
     def is_free(self, loc):
-        return self.board_matrix[loc[0]][loc[1]] is None
+        return self.board_matrix[loc] is None
 
     def is_ally(self, loc, player_id):
         unit_in_loc = self.get_unit_in_loc(loc)
@@ -155,7 +168,7 @@ class Board:
         return self.num_free_tiles_around_loc(loc)
 
     def get_unit_in_loc(self, loc):
-        return self.board_matrix[loc[0]][loc[1]]
+        return self.board_matrix[loc]
 
     def get_adjacent_enemy_unit(self, unit):
         enemy_locs = self.get_adjacent_locs(unit.loc,

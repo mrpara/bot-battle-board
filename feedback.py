@@ -28,7 +28,7 @@ class Feedback(metaclass=Singleton):
         # Code taken from https://stackoverflow.com/questions/13214809/pretty-print-2d-python-list/32159502
         if self.display_board or self.write_to_file:
             output_mtx = []
-            for row in board.board_matrix:
+            for row in board.board_matrix.board_matrix:
                 output_mtx.append(['X' if elem is None else elem.id for elem in row])
             s = [[str(e) for e in row] for row in output_mtx]
             lens = [max(map(len, col)) for col in zip(*s)]
