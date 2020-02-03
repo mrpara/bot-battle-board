@@ -22,6 +22,9 @@ class Board:
         self.board_matrix = [[None for _ in range(self.board_size[1])] for _ in range(self.board_size[0])]
         self.num_total_units_spawned = 0
 
+        if unit_limit_pct <= 0 or unit_limit_pct > 1:
+            raise Exception("Unit limit (% of board capacity) must be greater than 0 and less than or equal to 1")
+
     ####################################################################################################################
     # Board manipulation
     ####################################################################################################################
