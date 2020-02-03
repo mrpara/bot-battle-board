@@ -4,6 +4,7 @@ from unit import Unit
 from random import choice
 from feedback import Feedback
 from math import ceil
+from random import randint
 
 
 class Board:
@@ -106,6 +107,9 @@ class Board:
     ####################################################################################################################
     # Helper functions
     ####################################################################################################################
+
+    def get_random_location(self):
+        return [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1]) - 1]
 
     def is_free(self, loc):
         if self.board_matrix[loc[0]][loc[1]] is None:

@@ -49,10 +49,10 @@ class Game:
         # For each player, spawn one unit in a random location on the board_matrix. If the location has already
         # been picked, keep picking random locations until an available one has been found.
         spawn_locs = set()
-        newloc = [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1]) - 1]
+        newloc = self.board.get_random_location()
         for player_id in self.players:
             while tuple(newloc) in spawn_locs:
-                newloc = [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1]) - 1]
+                newloc = self.board.get_random_location()
             spawn_locs.add(tuple(newloc))
             self.board.spawn_unit(player_id, newloc)
 
