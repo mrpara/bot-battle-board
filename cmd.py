@@ -1,6 +1,10 @@
 import inspect
 from functools import wraps
-from feedback import Feedback
+import logging
+
+# Setup logging
+logger = logging.getLogger(__name__)
+logger.setLevel(1)
 
 
 def critical_action(func):
@@ -72,7 +76,7 @@ class Commands:
         new_loc = self.board.get_free_adjacent_loc(current_loc)
         if new_loc is None:
             return
-        Feedback().display_message("Unit " + str(unit.id) + " moved from " + str(current_loc) + " to " + str(new_loc))
+        logger.log(10, "Unit " + str(unit.id) + " moved from " + str(current_loc) + " to " + str(new_loc))
         self.board.move_unit(unit, new_loc)
 
     @critical_action
@@ -81,20 +85,18 @@ class Commands:
         # in an adjacent free tile.
         self.turn_handler.current_unit().set_spawn(3)
         unit = self.turn_handler.current_unit()
-        Feedback().display_message("Setting spawn for unit " + str(unit.id)
-                                   + " belonging to player " + str(unit.player_id)
-                                   + " in 3 turns")
+        logger.log(10, "Setting spawn for unit " + str(unit.id) + " belonging to player "
+                   + str(unit.player_id) + " in 3 turns")
 
     @critical_action
     def wait(self):
         # Forfeit turn
-        Feedback().display_message("Unit " + str(self.turn_handler.current_unit().id) + " has forfeited its turn")
-        pass
+        logger.log(10, "Unit " + str(self.turn_handler.current_unit().id) + " has forfeited its turn")
 
     @critical_action
     def defend(self):
         # Unit goes into defense mode (will block up to one attack until next turn)
-        Feedback().display_message("Unit " + str(self.turn_handler.current_unit().id) + " is defending")
+        logger.log(10, "Unit " + str(self.turn_handler.current_unit().id) + " is defending")
         self.turn_handler.current_unit().defend()
 
     @critical_action
@@ -201,4 +203,4 @@ class Commands:
 
     @staticmethod
     def prnt(a):
-        Feedback().display_message(str(a))
+        logger.log(10, str(a))

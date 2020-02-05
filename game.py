@@ -3,8 +3,11 @@ import board
 import turn_handler
 import player
 import cmd
-from feedback import Feedback
 import argparse
+import logging
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 
 class Game:
@@ -19,20 +22,41 @@ class Game:
         self.board_size = [20, 20]
         self.turn_limit = 10000
         self.unit_limit_pct = 0.05  # The maximum number of allowed units per player, as a percentage of board capacity
-        self.display_messages = True
-        self.display_board = True
-        self.write_to_file = False
-        self.default_path = "C:/Users/user1/Dropbox/strategies/bot-battle-board"
+        self.log_level = 10  # Level of log info. Use 30 to only display win/lose messages, 20 to also display turn
+        # numbers and the board, and 10 to also display action messages
+        self.write_to_file = True
         self.log_path = "log.txt"
 
         # OBJECT INITIALIZATION
         self.players = {}  # Dict of players, player_id -> player_object
-        Feedback(self.display_messages, self.display_board, self.write_to_file, self.log_path)
         self.turn_handler = turn_handler.TurnHandler()  # Turn handler in charge of determining which unit acts when
         self.board = board.Board(self.turn_handler, self.players,
                                  self.board_size, self.unit_limit_pct)  # Board and units
         self.user_commands = cmd.Commands(self.board, self.turn_handler)
         self.interpreter = interpreter.Interpreter(self.turn_handler, self.user_commands)
+
+        # CONFIGURE LOGGER
+        self.configure_logger()
+
+    def configure_logger(self):
+        # Configure the logger and its handlers
+        formatter = logging.Formatter('%(message)s')
+        handlers = []
+
+        # Handler for stream output
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(self.log_level)
+        stream_handler.setFormatter(formatter)
+        handlers.append(stream_handler)
+
+        # Handler for file output
+        if self.write_to_file:
+            file_handler = logging.FileHandler(self.log_path, mode='w', encoding='utf-8')
+            file_handler.setLevel(self.log_level)
+            file_handler.setFormatter(formatter)
+            handlers.append(file_handler)
+
+        logging.basicConfig(handlers=handlers, level=10)
 
     def populate_players(self):
         # For each player, read their script and analyze it, and create a new player object
@@ -59,11 +83,11 @@ class Game:
     def turn(self):
         # Start turn (resetting all relevant state variables), execute script for current acting unit, and end turn
         self.turn_handler.start_turn()
-        Feedback().display_message("Turn number " + str(self.interpreter.turn_handler.turn_number))
-        Feedback().display_message("Acting unit: " + str(self.interpreter.turn_handler.current_unit().id))
+        logger.log(20, "Turn number " + str(self.interpreter.turn_handler.turn_number))
+        logger.log(20, "Acting unit: " + str(self.interpreter.turn_handler.current_unit().id))
         self.players[self.turn_handler.current_player()].command_script()
         self.turn_handler.end_turn()
-        Feedback().print_board(self.board)
+        self.board.print_board()
         self.remove_losing_players()
 
     def remove_losing_players(self):
@@ -72,7 +96,7 @@ class Game:
         for player_id, player_r in self.players.items():
             if player_r.num_units() == 0:
                 players_to_remove.append(player_id)
-                Feedback().display_message("Player " + str(player_id) + " eliminated")
+                logger.log(30, "Player " + str(player_id) + " eliminated")
         for player_id in players_to_remove:
             del self.players[player_id]
 
@@ -82,7 +106,7 @@ class Game:
         # The winners are all the players who hold the highest number of remaining units.
 
         if self.one_player_left():
-            Feedback().display_message("Player " + str(list(self.players)[0]) + " has won the game")
+            logger.log(30, "Player " + str(list(self.players)[0]) + " has won the game")
             return
 
         #  Make a player id -> remaining units dict, check max value, then get all player ids with this max value
@@ -92,12 +116,12 @@ class Game:
                         if remaining_units[player_id] == max_num_units_left]
 
         if len(tied_players) == 1:
-            Feedback().display_message("Turn limit reached, player " + str(tied_players[0]) +
-                                       " wins with " + str(max_num_units_left) + " units remaining")
+            logger.log(30, "Turn limit reached, player " + str(tied_players[0]) + " wins with "
+                       + str(max_num_units_left) + " units remaining")
             return
 
-        Feedback().display_message("Turn limit reached, players " + str(tied_players) +
-                                   " are tied with " + str(max_num_units_left) + " units remaining")
+        logger.log(30, "Turn limit reached, players " + str(tied_players) + " are tied with "
+                   + str(max_num_units_left) + " units remaining")
 
     def one_player_left(self):
         # Game ends when only one player has surviving units (or if turn limit is reached)
@@ -116,7 +140,7 @@ class Game:
         self.announce_winner()
 
 
-if __name__ == "__main__":
+def main():
     # Argument parsing
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--filepaths', nargs='*', help='Filepaths for bot strategy scripts')
@@ -124,3 +148,7 @@ if __name__ == "__main__":
 
     game = Game(paths)
     game.start_game()
+
+
+if __name__ == "__main__":
+    main()

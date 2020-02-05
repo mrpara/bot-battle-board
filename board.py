@@ -2,9 +2,13 @@ from typing import List
 from typing import Union
 from unit import Unit
 from random import choice
-from feedback import Feedback
 from math import ceil
 from random import randint
+import logging
+
+# Setup logging
+logger = logging.getLogger(__name__)
+logger.setLevel(1)
 
 
 class BoardMatrix:
@@ -48,8 +52,8 @@ class Board:
             raise Exception("Cannot spawn unit in location " + str(loc) + " since it is occupied")
 
         if self.players[player_id].num_units() >= self.unit_limit:
-            Feedback().display_message("Player " + str(player_id) +
-                                       " attempted to spawn new unit, but has reached the spawn limit.")
+            logger.log(10, "Player " + str(player_id)
+                       + " attempted to spawn new unit, but has reached the spawn limit.")
             return
 
         self.num_total_units_spawned += 1
@@ -58,8 +62,7 @@ class Board:
         self.board_matrix[loc] = new_unit
         self.turn_handler.add_to_queue(new_unit)
         self.players[player_id].units.add(new_unit)
-        Feedback().display_message("New unit " + str(unit_id) + " spawned by player " + str(player_id) +
-                                   " in location " + str(loc))
+        logger.log(10, "New unit " + str(unit_id) + " spawned by player " + str(player_id) + " in location " + str(loc))
 
     def despawn_unit(self, unit):
         # Remove unit from board
@@ -115,9 +118,9 @@ class Board:
     def attack_adjacent_enemy(self, unit, dmg):
         enemy_unit = self.get_adjacent_enemy_unit(unit)
         if enemy_unit is None:
-            Feedback().display_message("Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
+            logger.log(10, "Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
             return
-        Feedback().display_message("Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
+        logger.log(10, "Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
         enemy_unit.damage(dmg)
 
     ####################################################################################################################
@@ -211,3 +214,18 @@ class Board:
     def get_unit_limit(self):
         # Return the unit limit
         return self.unit_limit
+
+    ####################################################################################################################
+    # Display
+    ####################################################################################################################
+
+    def print_board(self):
+        # Print the board_matrix matrix nicely formatted
+        # Code adapted from https://stackoverflow.com/questions/13214809/pretty-print-2d-python-list/32159502
+        output_mtx = [['X' if elem is None else elem.id for elem in row] for row in self.board_matrix.board_matrix]
+        s = [[str(e) for e in row] for row in output_mtx]
+        lens = [max(map(len, col)) for col in zip(*s)]
+        fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
+        table = [fmt.format(*row) for row in s]
+        table_formatted = '\n'.join(table)
+        logger.log(20, table_formatted)
