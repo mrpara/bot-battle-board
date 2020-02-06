@@ -46,36 +46,36 @@ class Board:
     # Board manipulation
     ####################################################################################################################
 
-    def spawn_unit(self, player_id, loc):
+    def spawn_unit(self, player, loc):
         # Add new unit to board
         if not self.is_free(loc):
             raise Exception("Cannot spawn unit in location " + str(loc) + " since it is occupied")
 
-        if self.players[player_id].num_units() >= self.unit_limit:
-            logger.log(10, "Player " + str(player_id)
+        if player.num_units() >= self.unit_limit:
+            logger.log(10, "Player " + str(player.id)
                        + " attempted to spawn new unit, but has reached the spawn limit.")
             return
 
         self.num_total_units_spawned += 1
         unit_id = self.num_total_units_spawned
-        new_unit = Unit(self, unit_id, player_id, loc)
+        new_unit = Unit(self, unit_id, player, loc)
         self.board_matrix[loc] = new_unit
         self.turn_handler.add_to_queue(new_unit)
-        self.players[player_id].units.add(new_unit)
-        logger.log(10, "New unit " + str(unit_id) + " spawned by player " + str(player_id) + " in location " + str(loc))
+        player.units.add(new_unit)
+        logger.log(10, "New unit " + str(unit_id) + " spawned by player " + str(player.id) + " in location " + str(loc))
 
     def despawn_unit(self, unit):
         # Remove unit from board
         loc = unit.loc
         self.board_matrix[loc] = None
         self.turn_handler.remove_from_queue(unit)
-        self.players[unit.player_id].units.remove(unit)
+        unit.player.units.remove(unit)
 
-    def spawn_in_adjacent_location(self, player_id, loc):
+    def spawn_in_adjacent_location(self, player, loc):
         spawn_loc = self.get_free_adjacent_loc(loc)
         if spawn_loc is None:
             return
-        self.spawn_unit(player_id, spawn_loc)
+        self.spawn_unit(player, spawn_loc)
 
     def move_unit(self, unit, new_loc):
         if not self.is_free(new_loc):
@@ -91,17 +91,18 @@ class Board:
 
     def num_allies_around_unit(self, unit):
         loc = unit.loc
-        player_id = unit.player_id
+        player_id = unit.player.id
         return self.count_adjacent_locs(loc, lambda tloc: self.is_ally(tloc, player_id))
 
     def num_enemies_around_unit(self, unit):
         return 8 - self.num_free_tiles_around_unit(unit) - self.num_allies_around_unit(unit)
 
-    def num_total_allies(self, player_id):
-        return self.players[player_id].num_units() - 1
+    @staticmethod
+    def num_total_allies(player):
+        return player.num_units() - 1
 
-    def num_total_enemies(self, player_id):
-        return sum([self.players[t_id].num_units() for t_id in self.players if t_id != player_id])
+    def num_total_enemies(self, player):
+        return sum([t_player.num_units() for t_player_id, t_player in self.players.items() if t_player != player])
 
     def distance_from_closest_ally(self, unit):
         dist = [self.board_size[0] + self.board_size[1]]
@@ -133,13 +134,13 @@ class Board:
     def is_free(self, loc):
         return self.board_matrix[loc] is None
 
-    def is_ally(self, loc, player_id):
+    def is_ally(self, loc, player):
         unit_in_loc = self.get_unit_in_loc(loc)
-        return unit_in_loc is not None and unit_in_loc.player_id == player_id
+        return unit_in_loc is not None and unit_in_loc.player == player
 
-    def is_enemy(self, loc, player_id):
+    def is_enemy(self, loc, player):
         unit_in_loc = self.get_unit_in_loc(loc)
-        return unit_in_loc is not None and unit_in_loc.player_id != player_id
+        return unit_in_loc is not None and unit_in_loc.player != player
 
     def get_all_adjacent_locs(self, loc):
         adjacent_locs = [None, None, None, None, None, None, None, None]  # Preallocate list for efficiency
@@ -175,7 +176,7 @@ class Board:
 
     def get_adjacent_enemy_unit(self, unit):
         enemy_locs = self.get_adjacent_locs(unit.loc,
-                                            lambda tloc: self.is_enemy(tloc, unit.player_id))
+                                            lambda tloc: self.is_enemy(tloc, unit.player.id))
         if len(enemy_locs) == 0:
             return None
         return self.get_unit_in_loc(choice(enemy_locs))
@@ -191,12 +192,13 @@ class Board:
 
     def get_all_enemies(self, unit):
         return [t_unit
-                for player_id in self.players if player_id != unit.player_id
-                for t_unit in self.players[player_id].units]
+                for t_player_id, t_player in self.players.items() if t_player != unit.player
+                for t_unit in t_player.units]
 
-    def get_all_allies(self, unit):
+    @staticmethod
+    def get_all_allies(unit):
         return [t_unit
-                for t_unit in self.players[unit.player_id].units
+                for t_unit in unit.player.units
                 if t_unit != unit]
 
     def distance_between_units(self, unit1, unit2):

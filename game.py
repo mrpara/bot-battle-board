@@ -71,11 +71,11 @@ class Game:
         # been picked, keep picking random locations until an available one has been found.
         spawn_locs = set()
         newloc = self.board.get_random_location()
-        for player_id in self.players:
+        for player_id, player_inst in self.players.items():
             while tuple(newloc) in spawn_locs:
                 newloc = self.board.get_random_location()
             spawn_locs.add(tuple(newloc))
-            self.board.spawn_unit(player_id, newloc)
+            self.board.spawn_unit(player_inst, newloc)
 
     def turn_limit_reached(self):
         return self.turn_handler.turn_number >= self.turn_limit
@@ -85,7 +85,7 @@ class Game:
         self.turn_handler.start_turn()
         logger.log(20, "Turn number " + str(self.interpreter.turn_handler.turn_number))
         logger.log(20, "Acting unit: " + str(self.interpreter.turn_handler.current_unit().id))
-        self.players[self.turn_handler.current_player()].command_script()
+        self.turn_handler.current_player().command_script()
         self.turn_handler.end_turn()
         self.board.print_board()
         self.remove_losing_players()

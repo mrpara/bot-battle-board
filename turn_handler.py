@@ -13,7 +13,7 @@ class TurnHandler:
         return self.queue[-1]
 
     def current_player(self):
-        return self.current_unit().player_id
+        return self.current_unit().player
 
     def start_turn(self):
         self.turn_number += 1

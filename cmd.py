@@ -86,7 +86,7 @@ class Commands:
         self.turn_handler.current_unit().set_spawn(3)
         unit = self.turn_handler.current_unit()
         logger.log(10, "Setting spawn for unit " + str(unit.id) + " belonging to player "
-                   + str(unit.player_id) + " in 3 turns")
+                   + str(unit.player.id) + " in 3 turns")
 
     @critical_action
     def wait(self):

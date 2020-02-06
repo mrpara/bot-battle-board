@@ -7,13 +7,13 @@ logger.setLevel(1)
 
 class Unit:
     # Class representing the basic unit (bot) and its state
-    def __init__(self, board, unit_id, player_id, initial_loc):
+    def __init__(self, board, unit_id, player, initial_loc):
         self.board = board  # The board_matrix the unit is on
         self.var_data = {}  # holds user-defined variable data
 
         # Unit identification
         self.id = unit_id
-        self.player_id = player_id
+        self.player = player
 
         # State variables
         self.loc = initial_loc
@@ -41,7 +41,7 @@ class Unit:
         if self.spawn_timer > 0:
             self.spawn_timer -= 1
             if self.spawn_timer == 0:
-                self.board.spawn_in_adjacent_location(self.player_id, self.loc)
+                self.board.spawn_in_adjacent_location(self.player, self.loc)
 
     def decrement_hp(self, dmg):
         # Reduce hp, check if unit dies
