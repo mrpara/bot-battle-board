@@ -7,3 +7,9 @@ install:
 # command to run tests
 script: 
   - python3 test_board.py
+  - python3 test_cmd.py
+  - python3 test_game.py
+  - python3 test_interpreter.py
+  - python3 test_player.py
+  - python3 test_turn_handler.py
+  - python3 test_unit.py
