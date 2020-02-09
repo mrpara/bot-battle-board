@@ -141,6 +141,122 @@ class TestBoard(unittest.TestCase):
         unit2 = self.players[1].units.pop()
         self.assertEqual(unit2.hp, unit1.hp - 1)
 
+    def test_is_free(self):
+        # Check that a location is free, then spawn a unit in it and verify that it is no longer free
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        self.assertTrue(test_board.is_free([0, 0]))
+        test_board.spawn_unit(self.players[0], [0, 0])
+        self.assertFalse(test_board.is_free([0, 0]))
+
+    def test_is_ally(self):
+        # Verify that unit is an ally to the player that spawned it and not an ally to another player
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        test_board.spawn_unit(self.players[0], [0, 0])
+        self.assertTrue(test_board.is_ally([0, 0], self.players[0]))
+        self.assertFalse(test_board.is_ally([0, 0], self.players[1]))
+
+    def test_is_enemy(self):
+        # Verify that unit is not an enemy to the player that spawned it an enemy to another player
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        test_board.spawn_unit(self.players[0], [0, 0])
+        self.assertFalse(test_board.is_enemy([0, 0], self.players[0]))
+        self.assertTrue(test_board.is_enemy([0, 0], self.players[1]))
+
+    def test_get_all_adjacent_locs(self):
+        # Supply a location and compare against the results of the get_all_adjacent_locs
+        # A location on the edge is chosen to make sure that wrapping works
+        # The list of locations must be sorted so that order does not change the result
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        loc = [0, 2]
+        adjacent_locs = sorted([[19, 1], [19, 2], [19, 3], [0, 1], [0, 3], [1, 1], [1, 2], [1, 3]])
+        self.assertEqual(sorted(test_board.get_all_adjacent_locs(loc)), adjacent_locs)
+
+    def test_num_free_tiles_around_loc(self):
+        # Check that 8 locations are free around a given location, then spawn a unit around it and check
+        # that the number is reduced
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        self.assertEqual(test_board.num_free_tiles_around_loc([0, 0]), 8)
+        test_board.spawn_unit(self.players[0], [1, 0])
+        self.assertEqual(test_board.num_free_tiles_around_loc([0, 0]), 7)
+
+    def test_get_unit_in_loc(self):
+        # First check that getting a unit from an empty location returns none
+        # Then spawn a unit and verify that the correct unit is returned
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        self.assertIsNone(test_board.get_unit_in_loc([0, 0]))
+        test_board.spawn_unit(self.players[0], [0, 0])
+        unit = self.players[0].units.pop()
+        self.assertEqual(unit, test_board.get_unit_in_loc([0, 0]))
+
+    def test_get_adjacent_enemy_unit(self):
+        # First check that getting an enemy unit when there isn't one returns none
+        # Then spawn a an enemy unit and verify that the correct unit is returned
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        test_board.spawn_unit(self.players[0], [0, 0])
+        unit1 = self.players[0].units.pop()
+        self.assertIsNone(test_board.get_adjacent_enemy_unit(unit1))
+        test_board.spawn_unit(self.players[1], [1, 0])
+        unit2 = self.players[1].units.pop()
+        self.assertEqual(test_board.get_adjacent_enemy_unit(unit1), unit2)
+
+    def test_get_adjacent_locs(self):
+        # Test method that returns all adjacent locs that satisfy some boolean function
+        # For this test we'll use the condition (x_loc + y_loc) mod 2 == 0
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        test_loc = [5, 5]
+        expected_locs = sorted([[4, 4], [4, 6], [6, 4], [6, 6]])
+
+        def loc_is_even(loc):
+            return (loc[0] + loc[1]) % 2 == 0
+        res = sorted(test_board.get_adjacent_locs(test_loc, loc_is_even))
+        self.assertEqual(expected_locs, res)
+
+    def test_get_all_enemies(self):
+        # Spawn some enemies and make sure we get the right answer
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        test_board.spawn_unit(self.players[0], [0, 0])
+        unit = self.players[0].units.pop()
+        test_board.spawn_unit(self.players[1], [1, 0])
+        test_board.spawn_unit(self.players[1], [1, 1])
+        test_board.spawn_unit(self.players[2], [0, 1])
+        test_board.spawn_unit(self.players[2], [3, 2])
+        test_board.spawn_unit(self.players[2], [10, 17])
+        self.assertEqual(set(test_board.get_all_enemies(unit)), self.players[1].units | self.players[2].units)
+
+    def test_get_all_allies(self):
+        # Spawn a unit, remove it from the play, spawn some ally units and check that they are returned by the method
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        test_board.spawn_unit(self.players[0], [0, 0])
+        unit = self.players[0].units.pop()
+        test_board.spawn_unit(self.players[0], [1, 0])
+        test_board.spawn_unit(self.players[0], [1, 1])
+        test_board.spawn_unit(self.players[0], [0, 1])
+        test_board.spawn_unit(self.players[0], [3, 2])
+        test_board.spawn_unit(self.players[0], [10, 17])
+        self.assertEqual(set(test_board.get_all_allies(unit)), self.players[0].units)
+
+    def test_distance_between_units(self):
+        # Test some different cases of distances
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+
+        test_board.spawn_unit(self.players[0], [0, 0])
+        unit1 = self.players[0].units.pop()
+        test_board.spawn_unit(self.players[0], [19, 0])
+        unit2 = self.players[0].units.pop()
+        self.assertEqual(test_board.distance_between_units(unit1, unit2), 1)
+
+        test_board.spawn_unit(self.players[0], [5, 5])
+        unit1 = self.players[0].units.pop()
+        test_board.spawn_unit(self.players[0], [10, 10])
+        unit2 = self.players[0].units.pop()
+        self.assertEqual(test_board.distance_between_units(unit1, unit2), 5)
+
+        test_board.spawn_unit(self.players[0], [1, 2])
+        unit1 = self.players[0].units.pop()
+        test_board.spawn_unit(self.players[0], [2, 18])
+        unit2 = self.players[0].units.pop()
+        self.assertEqual(test_board.distance_between_units(unit1, unit2), 4)
+
 
 if __name__ == '__main__':
     unittest.main()
