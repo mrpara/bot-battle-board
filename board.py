@@ -90,9 +90,7 @@ class Board:
     ####################################################################################################################
 
     def num_allies_around_unit(self, unit):
-        loc = unit.loc
-        player_id = unit.player.id
-        return self.count_adjacent_locs(loc, lambda tloc: self.is_ally(tloc, player_id))
+        return self.count_adjacent_locs(unit.loc, lambda tloc: self.is_ally(tloc, unit.player))
 
     def num_enemies_around_unit(self, unit):
         return 8 - self.num_free_tiles_around_unit(unit) - self.num_allies_around_unit(unit)
@@ -120,9 +118,10 @@ class Board:
         enemy_unit = self.get_adjacent_enemy_unit(unit)
         if enemy_unit is None:
             logger.log(10, "Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
-            return
+            return False  # fail state
         logger.log(10, "Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
         enemy_unit.damage(dmg)
+        return True  # success
 
     ####################################################################################################################
     # Helper functions
