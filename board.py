@@ -85,6 +85,14 @@ class Board:
         self.board_matrix[old_loc] = None
         self.board_matrix[new_loc] = unit
 
+    def move_to_adjacent_loc(self, unit):
+        current_loc = unit.loc
+        new_loc = self.get_free_adjacent_loc(current_loc)
+        if new_loc is None:
+            return
+        logger.log(10, "Unit " + str(unit.id) + " moved from " + str(current_loc) + " to " + str(new_loc))
+        self.move_unit(unit, new_loc)
+
     ####################################################################################################################
     # Functions for use in user-commands
     ####################################################################################################################

@@ -87,6 +87,16 @@ class TestBoard(unittest.TestCase):
         self.assertTrue(unit1.loc == [3, 3])
         self.assertTrue(test_board.board_matrix[[3, 3]] == unit1)
 
+    def test_move_to_adjacent_loc(self):
+        # Spawn a unit, call move to adjacent loc, verify it is now in an adjacent loc
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
+        test_board.spawn_unit(self.players[0], [0, 0])
+        unit = self.players[0].units.pop()
+        old_loc = unit.loc
+        test_board.move_to_adjacent_loc(unit)
+        new_loc = unit.loc
+        self.assertTrue(check_adjacent(old_loc, new_loc, test_board.board_size))
+
     def test_num_allies_around_unit(self):
         # Spawn a unit, spawn 2 allied units and one enemy unit around it, check number of allies
         test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)

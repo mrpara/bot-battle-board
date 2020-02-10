@@ -71,13 +71,7 @@ class Commands:
     @critical_action
     def move(self):
         # Move to random free adjacent tile
-        unit = self.turn_handler.current_unit()
-        current_loc = unit.loc
-        new_loc = self.board.get_free_adjacent_loc(current_loc)
-        if new_loc is None:
-            return
-        logger.log(10, "Unit " + str(unit.id) + " moved from " + str(current_loc) + " to " + str(new_loc))
-        self.board.move_unit(unit, new_loc)
+        self.board.move_to_adjacent_loc(self.turn_handler.current_unit())
 
     @critical_action
     def spawn(self):
