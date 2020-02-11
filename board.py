@@ -46,7 +46,7 @@ class Board:
     # Board manipulation
     ####################################################################################################################
 
-    def spawn_unit(self, player, loc):
+    def spawn_unit(self, player, loc, unit_hp = 3):
         # Add new unit to board
         if not self.is_free(loc):
             raise Exception("Cannot spawn unit in location " + str(loc) + " since it is occupied")
@@ -54,15 +54,16 @@ class Board:
         if player.num_units() >= self.unit_limit:
             logger.log(10, "Player " + str(player.id)
                        + " attempted to spawn new unit, but has reached the spawn limit.")
-            return
+            return False  # Couldn't spawn new unit
 
         self.num_total_units_spawned += 1
         unit_id = self.num_total_units_spawned
-        new_unit = Unit(self, unit_id, player, loc)
+        new_unit = Unit(self, unit_id, player, loc, unit_hp)
         self.board_matrix[loc] = new_unit
         self.turn_handler.add_to_queue(new_unit)
         player.units.add(new_unit)
         logger.log(10, "New unit " + str(unit_id) + " spawned by player " + str(player.id) + " in location " + str(loc))
+        return True  # Spawned new unit
 
     def despawn_unit(self, unit):
         # Remove unit from board
@@ -74,8 +75,8 @@ class Board:
     def spawn_in_adjacent_location(self, player, loc):
         spawn_loc = self.get_free_adjacent_loc(loc)
         if spawn_loc is None:
-            return
-        self.spawn_unit(player, spawn_loc)
+            return False
+        return self.spawn_unit(player, spawn_loc)
 
     def move_unit(self, unit, new_loc):
         if not self.is_free(new_loc):

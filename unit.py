@@ -7,7 +7,7 @@ logger.setLevel(1)
 
 class Unit:
     # Class representing the basic unit (bot) and its state
-    def __init__(self, board, unit_id, player, initial_loc):
+    def __init__(self, board, unit_id, player, initial_loc, initial_hp=3):
         self.board = board  # The board_matrix the unit is on
         self.var_data = {}  # holds user-defined variable data
 
@@ -17,7 +17,7 @@ class Unit:
 
         # State variables
         self.loc = initial_loc
-        self.hp = 3
+        self.hp = initial_hp
         self.spawn_timer = 0
         self.charge_timer = 0
         self.charge_strength = 0
@@ -37,18 +37,22 @@ class Unit:
         self.decrement_charge_timer_and_attack_if_ready()
 
     def decrement_spawn_timer_and_spawn_if_ready(self):
-        # Decrement spawn timer (if active) and spawn new unit when it hits 0
+        # Decrement spawn timer (if active) and spawn new unit when it hits 0, returning the state of the spawn
+        # (True if spawn succeeded, False if not)
         if self.spawn_timer > 0:
             self.spawn_timer -= 1
             if self.spawn_timer == 0:
-                self.board.spawn_in_adjacent_location(self.player, self.loc)
+                return self.board.spawn_in_adjacent_location(self.player, self.loc)
+        return False
 
     def decrement_hp(self, dmg):
-        # Reduce hp, check if unit dies
+        # Reduce hp, check if unit dies (return True if it does, False otherwise - for testing purposes)
         self.hp -= dmg
         logger.log(10, "Unit " + str(self.id) + " took " + str(dmg) + " damage")
         if self.hp <= 0:
             self.kill()
+            return True
+        return False
 
     def kill(self):
         # Despawn unit from board_matrix

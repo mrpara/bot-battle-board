@@ -57,7 +57,7 @@ Forfeit the current turn and the next two turns. In the beginning of the first t
 
 > charge_attack(num)
 
-The bot forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by 1 point more than the previous turn. For example, charge_attack(1) will cause the bot to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage. charge_attack(2) forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage. charge_attack(3) forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
+The bot forfeits num turns, and charges an attack. After num turns have passed, it will attack for high damage. Each turn waited increased the damage by 1 point more than the previous turn. For example, charge_attack(1) will cause the bot to forfeit one turn and attack on the second turn for 1 + 2 = 3 damage. It cannot perform another action on that turn. charge_attack(2) forfeits two turns, and attacks on the third turn for 1 + 2 + 3 = 6 points of damage. charge_attack(3) forfeits three turns, and attacks on the fourth turn for 1 + 2 + 3 + 4 = 10 points of damage, and so on.
 
 > defend()
 

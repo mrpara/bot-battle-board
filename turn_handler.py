@@ -1,4 +1,9 @@
 from collections import deque
+import logging
+
+# Setup logging
+logger = logging.getLogger(__name__)
+logger.setLevel(1)
 
 
 class TurnHandler:
@@ -17,6 +22,8 @@ class TurnHandler:
 
     def start_turn(self):
         self.turn_number += 1
+        logger.log(20, "Turn number " + str(self.turn_number))
+        logger.log(20, "Acting unit: " + str(self.current_unit().id))
         self.performed_critical_action = False
         self.current_unit().on_new_turn()
 

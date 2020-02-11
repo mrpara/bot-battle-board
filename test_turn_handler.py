@@ -22,7 +22,6 @@ class TestTurnHandler(unittest.TestCase):
         test_board.spawn_unit(self.players[0], [0, 1])
         self.assertEqual(unit1, test_turn_handler.current_unit())
 
-
     def test_end_turn(self):
         # Spawn two units. Make sure the first unit spawned is the current unit (top of the queue), then end turn
         # and make sure the second unit is the current unit

@@ -83,8 +83,6 @@ class Game:
     def turn(self):
         # Start turn (resetting all relevant state variables), execute script for current acting unit, and end turn
         self.turn_handler.start_turn()
-        logger.log(20, "Turn number " + str(self.interpreter.turn_handler.turn_number))
-        logger.log(20, "Acting unit: " + str(self.interpreter.turn_handler.current_unit().id))
         self.turn_handler.current_player().command_script()
         self.turn_handler.end_turn()
         self.board.print_board()

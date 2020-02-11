@@ -52,12 +52,12 @@ class TestBoard(unittest.TestCase):
     def test_spawn_limit(self):
         # Test that attempting to spawn beyond limit will not spawn new units
         test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)  # set limit to 4 units
-        test_board.spawn_unit(self.players[0], [0, 0])
-        test_board.spawn_unit(self.players[0], [0, 1])
-        test_board.spawn_unit(self.players[0], [0, 2])
-        test_board.spawn_unit(self.players[0], [0, 3])
+        self.assertTrue(test_board.spawn_unit(self.players[0], [0, 0]))
+        self.assertTrue(test_board.spawn_unit(self.players[0], [0, 1]))
+        self.assertTrue(test_board.spawn_unit(self.players[0], [0, 2]))
+        self.assertTrue(test_board.spawn_unit(self.players[0], [0, 3]))
         self.assertEqual(self.players[0].num_units(), 4)  # After 4 spawns we should have 4 units
-        test_board.spawn_unit(self.players[0], [0, 4])
+        self.assertFalse(test_board.spawn_unit(self.players[0], [0, 4]))
         self.assertEqual(self.players[0].num_units(), 4)  # After 5 spawns we should still have 4 units
 
     def test_despawn(self):
@@ -70,13 +70,22 @@ class TestBoard(unittest.TestCase):
         self.assertIsNone(test_board.board_matrix[0, 0])
 
     def test_spawn_adjacent(self):
-        # Spawn a unit, then spawn an adjacent unit and verify that it is adjacent
+        # Spawn a unit, then spawn an adjacent unit and verify that it is adjacent.
         test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.01)
-        test_board.spawn_unit(self.players[0], [0, 0])
+        self.assertTrue(test_board.spawn_unit(self.players[0], [0, 0]))
         unit1 = self.players[0].units.pop()
-        test_board.spawn_in_adjacent_location(unit1.player, unit1.loc)
+        self.assertTrue(test_board.spawn_in_adjacent_location(unit1.player, unit1.loc))
         unit2 = self.players[0].units.pop()
         self.assertTrue(check_adjacent(unit1.loc, unit2.loc, [20, 20]))
+
+    def test_spawn_adjacent_limit(self):
+        # Spawn a unit, then spawn 9 units around it. The spawn of the 9th unit should fail since there is no room.
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.5)
+        self.assertTrue(test_board.spawn_unit(self.players[0], [0, 0]))
+        unit1 = self.players[0].units.pop()
+        for i in range(8):
+            self.assertTrue(test_board.spawn_in_adjacent_location(unit1.player, unit1.loc))
+        self.assertFalse(test_board.spawn_in_adjacent_location(unit1.player, unit1.loc))
 
     def test_move(self):
         # Spawn a unit, move it to a new location, verify it is now in that location
