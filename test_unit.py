@@ -67,12 +67,18 @@ class TestUnit(unittest.TestCase):
         unit1.decrement_charge_timer_and_attack_if_ready()
         self.assertEqual(unit2.hp, 1)
 
-
     def test_damage(self):
-        pass
-
-    def test_can_act(self):
-        pass
+        # Test that attempting to cause a unit damage while defending will not cause damage, but break defense
+        # Then test that causing damage when not defending causes the desired amount of damage
+        test_board = board.Board(self.turn_handler, self.players, [20, 20], 0.5)
+        test_board.spawn_unit(self.players[0], [0, 0])
+        unit1 = self.players[0].units.pop()
+        unit1.defend()
+        unit1.damage(1)
+        self.assertFalse(unit1.defending)
+        self.assertEqual(unit1.hp, 3)
+        unit1.damage(2)
+        self.assertEqual(unit1.hp, 1)
 
 
 if __name__ == '__main__':

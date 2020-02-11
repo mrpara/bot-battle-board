@@ -106,9 +106,11 @@ class Unit:
         return self.unit_turn_number
 
     def can_act(self):
+        # Verify that unit is able to act (has not performed a critical action this turn, and no timer is active)
         return self.spawn_timer == 0 \
                and self.charge_timer == 0 \
                and self.performed_critical_action is False
 
     def perform_critical_action(self):
+        # Setter for critical action
         self.performed_critical_action = True
