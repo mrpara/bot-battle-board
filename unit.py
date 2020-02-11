@@ -23,6 +23,8 @@ class Unit:
         self.charge_strength = 0
         self.unit_turn_number = 0
         self.defending = False
+        self.performed_critical_action = False  # Critical actions are user-commands such as attack() or move(),
+        # which may not be performed more than once a turn
 
     def set_spawn(self, interval):
         # Begin spawn countdown. After interval units have passed and timer reaches 0, a new unit will be spawned.
@@ -33,6 +35,7 @@ class Unit:
         # Reset or update relevant state variables
         self.unit_turn_number += 1
         self.defending = False
+        self.performed_critical_action = False
         self.decrement_spawn_timer_and_spawn_if_ready()
         self.decrement_charge_timer_and_attack_if_ready()
 
@@ -104,4 +107,8 @@ class Unit:
 
     def can_act(self):
         return self.spawn_timer == 0 \
-               and self.charge_timer == 0
+               and self.charge_timer == 0 \
+               and self.performed_critical_action is False
+
+    def perform_critical_action(self):
+        self.performed_critical_action = True

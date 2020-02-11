@@ -11,8 +11,6 @@ class TurnHandler:
     def __init__(self):
         self.queue = deque()
         self.turn_number = 0
-        self.performed_critical_action = None  # Critical actions are user-commands such as attack() or move(),
-        # which may not be performed more than once a turn
 
     def current_unit(self):
         return self.queue[-1]
@@ -24,7 +22,6 @@ class TurnHandler:
         self.turn_number += 1
         logger.log(20, "Turn number " + str(self.turn_number))
         logger.log(20, "Acting unit: " + str(self.current_unit().id))
-        self.performed_critical_action = False
         self.current_unit().on_new_turn()
 
     def end_turn(self):
@@ -36,5 +33,3 @@ class TurnHandler:
     def remove_from_queue(self, unit):
         self.queue.remove(unit)
 
-    def perform_critical_action(self):
-        self.performed_critical_action = True

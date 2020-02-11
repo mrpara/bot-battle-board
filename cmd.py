@@ -12,10 +12,9 @@ def critical_action(func):
     # to act (i.e. not in the middle of spawning etc)
     @wraps(func)
     def decorated(self, *args, **kwargs):
-        if self.turn_handler.performed_critical_action is True \
-                or self.turn_handler.current_unit().can_act() is False:
-            return None
-        self.turn_handler.performed_critical_action = True
+        if self.turn_handler.current_unit().can_act() is False:
+            return False  # Could not perform action
+        self.turn_handler.current_unit().perform_critical_action()
         return func(self, *args, **kwargs)
     return decorated
 
@@ -59,6 +58,7 @@ class Commands:
     def attack(self):
         # Attack random adjacent enemy for one point of damage
         self.turn_handler.current_unit().attack(1)
+        return True  # Performed action
 
     @critical_action
     def charge_attack(self, num_turns):
@@ -67,11 +67,13 @@ class Commands:
         # turn (taking two turns total), dealing 3 points of damage. If charged for two turns, the unit will attack on
         # the third turn dealing 6 points of damage and so on.
         self.turn_handler.current_unit().charge_attack(num_turns)
+        return True  # Performed action
 
     @critical_action
     def move(self):
         # Move to random free adjacent tile
         self.board.move_to_adjacent_loc(self.turn_handler.current_unit())
+        return True  # Performed action
 
     @critical_action
     def spawn(self):
@@ -81,22 +83,26 @@ class Commands:
         unit = self.turn_handler.current_unit()
         logger.log(10, "Setting spawn for unit " + str(unit.id) + " belonging to player "
                    + str(unit.player.id) + " in 3 turns")
+        return True  # Performed action
 
     @critical_action
     def wait(self):
         # Forfeit turn
         logger.log(10, "Unit " + str(self.turn_handler.current_unit().id) + " has forfeited its turn")
+        return True  # Performed action
 
     @critical_action
     def defend(self):
         # Unit goes into defense mode (will block up to one attack until next turn)
         logger.log(10, "Unit " + str(self.turn_handler.current_unit().id) + " is defending")
         self.turn_handler.current_unit().defend()
+        return True  # Performed action
 
     @critical_action
     def fortify(self):
         # Unit gains 1 hp. There is no upper limit to total hp.
         self.turn_handler.current_unit().fortify()
+        return True  # Performed action
 
     ####################################################################################################################
     # Non-critical actions (information-providing commands)
