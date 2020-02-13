@@ -113,22 +113,25 @@ class Game:
         # The winners are all the players who hold the highest number of remaining units.
 
         if self.one_player_left():
-            logger.log(30, "Player " + str(list(self.players)[0]) + " has won the game")
-            return
+            winning_player = list(self.players.values())[0]
+            logger.log(30, "Player " + str(winning_player.id) + " has won the game")
+            return winning_player.id
 
         #  Make a player id -> remaining units dict, check max value, then get all player ids with this max value
         remaining_units = {player_id: self.players[player_id].num_units() for player_id in self.players}
         max_num_units_left = max(remaining_units.values())
-        tied_players = [player_id for player_id in remaining_units
-                        if remaining_units[player_id] == max_num_units_left]
+        tied_players = [self.players[player_id] for player_id in remaining_units
+                        if self.players[player_id].num_units() == max_num_units_left]
 
         if len(tied_players) == 1:
-            logger.log(30, "Turn limit reached, player " + str(tied_players[0]) + " wins with "
+            logger.log(30, "Turn limit reached, player " + str(tied_players[0].id) + " wins with "
                        + str(max_num_units_left) + " units remaining")
-            return
+            return tied_players[0].id
 
-        logger.log(30, "Turn limit reached, players " + str(tied_players) + " are tied with "
+        tied_player_ids = [t_player.id for t_player in tied_players]
+        logger.log(30, "Turn limit reached, players " + str(tied_player_ids) + " are tied with "
                    + str(max_num_units_left) + " units remaining")
+        return tied_player_ids
 
     def one_player_left(self):
         # Game ends when only one player has surviving units (or if turn limit is reached)
@@ -144,7 +147,7 @@ class Game:
         while not self.game_ended():
             self.turn()
 
-        self.announce_winner()
+        return self.announce_winner()
 
 
 def main():
