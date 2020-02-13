@@ -11,7 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 class Game:
-    def __init__(self, filepaths):
+    def __init__(self, filepaths,
+                 board_size=None,
+                 turn_limit=10000,
+                 unit_limit_pct=0.05,
+                 log_level=10,
+                 write_to_file=False,
+                 log_path="log.txt"):
         # Verify arguments
         if len(filepaths) < 2:
             raise Exception("Game requires at least two players. "
@@ -19,13 +25,16 @@ class Game:
         self.strategy_filepaths = filepaths
 
         # DEFAULT PARAMETERS
-        self.board_size = [20, 20]
-        self.turn_limit = 10000
-        self.unit_limit_pct = 0.05  # The maximum number of allowed units per player, as a percentage of board capacity
-        self.log_level = 10  # Level of log info. Use 30 to only display win/lose messages, 20 to also display turn
-        # numbers and the board, and 10 to also display action messages
-        self.write_to_file = True
-        self.log_path = "log.txt"
+        if board_size is None:  # Avoid mutable default argument
+            board_size = [20, 20]
+        self.board_size = board_size
+        self.turn_limit = turn_limit
+        self.unit_limit_pct = unit_limit_pct  # The maximum number of allowed units per player, as a percentage
+        # of board capacity
+        self.log_level = log_level  # Level of log info. Use 30 to only display win/lose messages, 20 to also display
+        # turn numbers and the board, and 10 to also display action messages
+        self.write_to_file = write_to_file
+        self.log_path = log_path
 
         # OBJECT INITIALIZATION
         self.players = {}  # Dict of players, player_id -> player_object

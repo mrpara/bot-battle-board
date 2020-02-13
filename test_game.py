@@ -1,18 +1,15 @@
+import game
 import unittest
-import board
-import turn_handler
+
 
 class TestBoard(unittest.TestCase):
+    # Class for unit testing the game object
     def setUp(self):
-        self.turn_handler = turn_handler.TurnHandler()
+        pass
 
     def test_unit_limit(self):
-        with self.assertRaises(Exception):
-            board.Board(self.turn_handler, {}, [20, 20], -1)
-        with self.assertRaises(Exception):
-            board.Board(self.turn_handler, {}, [20, 20], 0)
-        with self.assertRaises(Exception):
-            board.Board(self.turn_handler, {}, [20, 20], 1.2)
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()
