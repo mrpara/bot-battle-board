@@ -23,6 +23,8 @@ class TestCmd(unittest.TestCase):
         # Test that an exception is raised if a known command is called with the wrong number of arguments
         with self.assertRaises(Exception):
             cmd.CommandsInspector.verify_commands(test_cmd, "add", [1, 1, 1])
+        with self.assertRaises(Exception):
+            cmd.CommandsInspector.verify_commands(test_cmd, "add", [1])
 
     def test_critical_action(self):
         # Test that critical actions cannot be performed more than once per turn

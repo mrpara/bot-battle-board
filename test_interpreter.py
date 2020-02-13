@@ -154,8 +154,29 @@ class TestInterpreter(unittest.TestCase):
         self.assertTrue(self.interpreter.eval_and_exec_if_else(test_args))
 
     def test_analyze(self):
-        # Test that critical actions cannot be performed more than once per turn
-        pass
+        # Test the analyze method, which takes a string as input and returns lambda functions that run the relevant
+        # commands. Essentially this test checks that the syntax of the programming language used for the bots behaves
+        # as desired.
+        self.board.spawn_unit(self.players[0], [0, 0])
+        # Test primitives
+        self.assertEqual(self.interpreter.analyze("-3")(), -3)
+        self.assertEqual(self.interpreter.analyze("test")(), "test")
+        # Test the basic case of a legitimate command
+        self.assertEqual(self.interpreter.analyze("add(3, 2)")(), 5)
+        # Test chained commands by running a define command and then an add using the value. The overall return value
+        # should always be the return of the last command
+        exc = self.interpreter.analyze("define(x, 2) add(x, 6)")
+        self.assertEqual(exc(), 8)
+        # Test for persistence (i.e. that defines are "remembered" between calls) and linebreak
+        self.interpreter.analyze("define(y, -3) \n   define(z, -2)")()
+        self.assertEqual(self.interpreter.analyze("mul(y, z)")(), 6)
+        # Test that the false branch of an if statement returns 0
+        self.assertEqual(self.interpreter.analyze("if(gt(1, 3), add(1, 1))")(), 0)
+        # Test that wrong syntax raises an exception
+        with self.assertRaises(Exception):  # Space between command and arguments
+            self.interpreter.analyze("mul (2, 8)")()
+        with self.assertRaises(Exception):  # Missing parentheses
+            self.interpreter.analyze("mul(2, 8")()
 
 
 if __name__ == '__main__':
