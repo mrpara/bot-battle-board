@@ -42,7 +42,7 @@ class Interpreter:
 
     @staticmethod
     def is_command(expr):
-        return re.match("^.*[(].*[)]+$", expr) is not None
+        return re.match(r"[^\s\n]+[(].*[)]+$", expr) is not None
 
     @staticmethod
     def is_symbol(expr):
@@ -92,6 +92,7 @@ class Interpreter:
     def execute_multiple(exprs):
         # Execute all lambda functions. This evaluates arguments and then executes command.
         # Note that we continue this only so long as the current unit is able to act.
+        # The return value of the sequence is the return value of the last call.
         res = None
         for expr in exprs:
             res = expr()
@@ -100,9 +101,10 @@ class Interpreter:
     def get_symbol_value(self, expr):
         # Defined symbol values are saved on a per-unit basis, so the value is always taken from the dictionary
         # of the "current unit", which is determined by the turn handler
-        if expr in self.turn_handler.current_unit().var_data:
+        try:
             return self.turn_handler.current_unit().var_data[expr]
-        raise Exception("Undefined symbol " + expr)
+        except KeyError:
+            raise Exception("Undefined symbol " + expr)
 
     def eval_and_exec_general(self, cmd, args):
         # First execute all lambda functions for all arguments, reducing them all to either numbers or symbols
@@ -114,7 +116,7 @@ class Interpreter:
                 args_eval[idx] = self.get_symbol_value(args_eval[idx])
         return CommandsInspector.execute_command(self.commands, cmd, args_eval)
 
-    def eval_and_exec_define(self, cmd, args):
+    def eval_and_exec_define(self, args):
         # Define is a special case since it expects the first argument to be an undefined symbol, so we must not
         # attempt to fully resolve it
         args_eval = args.copy()  # Avoid modifying the original arguments
@@ -122,9 +124,9 @@ class Interpreter:
             args_eval[idx] = arg()
         if self.is_symbol(args_eval[1]):
             args_eval[1] = self.get_symbol_value(args_eval[1])
-        return CommandsInspector.execute_command(self.commands, cmd, args_eval)
+        return CommandsInspector.execute_command(self.commands, "define", args_eval)
 
-    def eval_and_exec_if_else(self, cmd, args):
+    def eval_and_exec_if_else(self, args):
         # If statements are a special case since we only want to execute the lambdas of the arguments based on the
         # predicate. Therefore only the first argument (the predicate) is evaluated at this stage, and the relevant
         # result is evaluated within the function itself
@@ -132,14 +134,14 @@ class Interpreter:
         args_eval[0] = args_eval[0]()
         if self.is_symbol(args_eval[0]):
             args_eval[0] = self.get_symbol_value(args_eval[0])
-        return CommandsInspector.execute_command(self.commands, cmd, args_eval)
+        return CommandsInspector.execute_command(self.commands, "if_else", args_eval)
 
     def eval_and_exec(self, cmd, args):
         # Command execution requires special handling for define and if statements
         if cmd == "define":
-            return self.eval_and_exec_define(cmd, args)
+            return self.eval_and_exec_define(args)
         elif cmd == "if_else":
-            return self.eval_and_exec_if_else(cmd, args)
+            return self.eval_and_exec_if_else(args)
         else:
             return self.eval_and_exec_general(cmd, args)
 
