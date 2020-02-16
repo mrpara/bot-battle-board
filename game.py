@@ -18,15 +18,21 @@ class Game:
                  log_level=10,
                  write_to_file=False,
                  log_path="log.txt"):
+
+        if board_size is None:  # Avoid mutable default argument
+            board_size = [20, 20]
+
         # Verify arguments
         if len(filepaths) < 2:
             raise Exception("Game requires at least two players. "
-                            "Provide a filepath for the script used for each player")
+                            "Provide a file path for the script used for each player")
+        if len(filepaths) > board_size[0] * board_size[1]:
+            raise Exception("Cannot start game for " + str(len(filepaths)) + " players with board size "
+                            + str(board_size) + " (" + str(board_size[0] * board_size[1]) +
+                            " tiles). There must be more tiles than players")
         self.strategy_filepaths = filepaths
 
         # DEFAULT PARAMETERS
-        if board_size is None:  # Avoid mutable default argument
-            board_size = [20, 20]
         self.board_size = board_size
         self.turn_limit = turn_limit
         self.unit_limit_pct = unit_limit_pct  # The maximum number of allowed units per player, as a percentage

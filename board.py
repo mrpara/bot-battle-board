@@ -137,7 +137,7 @@ class Board:
     ####################################################################################################################
 
     def get_random_location(self):
-        return [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1]) - 1]
+        return [randint(0, self.board_size[0] - 1), randint(0, self.board_size[1] - 1)]
 
     def is_free(self, loc):
         return self.board_matrix[loc] is None
