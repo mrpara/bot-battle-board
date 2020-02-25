@@ -47,7 +47,7 @@ class Game:
         self.turn_handler = turn_handler.TurnHandler()  # Turn handler in charge of determining which unit acts when
         self.board = board.Board(self.turn_handler, self.players,
                                  self.board_size, self.unit_limit_pct)  # Board and units
-        self.user_commands = cmd.Commands(self.board, self.turn_handler)
+        self.user_commands = cmd.Commands(self.board, turn_handler.TurnHandlerInterface(self.turn_handler))
         self.interpreter = interpreter.Interpreter(self.turn_handler, self.user_commands)
 
         # CONFIGURE LOGGER

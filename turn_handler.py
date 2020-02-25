@@ -33,3 +33,14 @@ class TurnHandler:
     def remove_from_queue(self, unit):
         self.queue.remove(unit)
 
+
+class TurnHandlerInterface:
+    # Interface for Turn Handler which exposes only current_unit and current_player for use in cmd.py
+    def __init__(self, turn_handler):
+        self.__turn_handler_instance = turn_handler
+
+    def current_unit(self):
+        return self.__turn_handler_instance.current_unit()
+
+    def current_player(self):
+        return self.__turn_handler_instance.current_player()

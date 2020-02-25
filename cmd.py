@@ -42,9 +42,9 @@ class CommandsInspector:
 
 class Commands:
     # This class handles definition of allowable user-input commands
-    def __init__(self, board, turn_handler):
+    def __init__(self, board, turn_handler_interface):
         self.board = board
-        self.turn_handler = turn_handler
+        self.turn_handler_interface = turn_handler_interface
 
     ####################################################################################################################
     # USER COMMANDS
@@ -57,7 +57,7 @@ class Commands:
     @critical_action
     def attack(self):
         # Attack random adjacent enemy for one point of damage
-        self.turn_handler.current_unit().attack(1)
+        self.turn_handler_interface.current_unit().attack(1)
         return True  # Performed action
 
     @critical_action
@@ -66,21 +66,21 @@ class Commands:
         # and then attack for (X+1)(X+2) / 2 damage. i.e. if charged for one turn, then unit will attack on the next
         # turn (taking two turns total), dealing 3 points of damage. If charged for two turns, the unit will attack on
         # the third turn dealing 6 points of damage and so on.
-        self.turn_handler.current_unit().charge_attack(num_turns)
+        self.turn_handler_interface.current_unit().charge_attack(num_turns)
         return True  # Performed action
 
     @critical_action
     def move(self):
         # Move to random free adjacent tile
-        self.board.move_to_adjacent_loc(self.turn_handler.current_unit())
+        self.board.move_to_adjacent_loc(self.turn_handler_interface.current_unit())
         return True  # Performed action
 
     @critical_action
     def spawn(self):
         # Set spawn timer of unit to 3 (unit will be unable to act for 3 turns, and will then spawn a new unit
         # in an adjacent free tile.
-        self.turn_handler.current_unit().set_spawn(3)
-        unit = self.turn_handler.current_unit()
+        self.turn_handler_interface.current_unit().set_spawn(3)
+        unit = self.turn_handler_interface.current_unit()
         logger.log(10, "Setting spawn for unit " + str(unit.id) + " belonging to player "
                    + str(unit.player.id) + " in 3 turns")
         return True  # Performed action
@@ -88,20 +88,20 @@ class Commands:
     @critical_action
     def wait(self):
         # Forfeit turn
-        logger.log(10, "Unit " + str(self.turn_handler.current_unit().id) + " has forfeited its turn")
+        logger.log(10, "Unit " + str(self.turn_handler_interface.current_unit().id) + " has forfeited its turn")
         return True  # Performed action
 
     @critical_action
     def defend(self):
         # Unit goes into defense mode (will block up to one attack until next turn)
-        logger.log(10, "Unit " + str(self.turn_handler.current_unit().id) + " is defending")
-        self.turn_handler.current_unit().defend()
+        logger.log(10, "Unit " + str(self.turn_handler_interface.current_unit().id) + " is defending")
+        self.turn_handler_interface.current_unit().defend()
         return True  # Performed action
 
     @critical_action
     def fortify(self):
         # Unit gains 1 hp. There is no upper limit to total hp.
-        self.turn_handler.current_unit().fortify()
+        self.turn_handler_interface.current_unit().fortify()
         return True  # Performed action
 
     ####################################################################################################################
@@ -109,28 +109,28 @@ class Commands:
     ####################################################################################################################
 
     def get_unit_id(self):
-        return self.turn_handler.current_unit().id
+        return self.turn_handler_interface.current_unit().id
 
     def get_turn_number(self):
-        return self.turn_handler.current_unit().get_turn_number()
+        return self.turn_handler_interface.current_unit().get_turn_number()
 
     def num_adjacent_allies(self):
-        return self.board.num_allies_around_unit(self.turn_handler.current_unit())
+        return self.board.num_allies_around_unit(self.turn_handler_interface.current_unit())
 
     def num_adjacent_enemies(self):
-        return self.board.num_enemies_around_unit(self.turn_handler.current_unit())
+        return self.board.num_enemies_around_unit(self.turn_handler_interface.current_unit())
 
     def num_total_allies(self):
-        return self.board.num_total_allies(self.turn_handler.current_player())
+        return self.board.num_total_allies(self.turn_handler_interface.current_player())
 
     def num_total_enemies(self):
-        return self.board.num_total_enemies(self.turn_handler.current_player())
+        return self.board.num_total_enemies(self.turn_handler_interface.current_player())
 
     def distance_from_closest_ally(self):
-        return self.board.distance_from_closest_ally(self.turn_handler.current_unit())
+        return self.board.distance_from_closest_ally(self.turn_handler_interface.current_unit())
 
     def distance_from_closest_enemy(self):
-        return self.board.distance_from_closest_enemy(self.turn_handler.current_unit())
+        return self.board.distance_from_closest_enemy(self.turn_handler_interface.current_unit())
 
     def get_unit_limit(self):
         return self.board.get_unit_limit()
@@ -141,7 +141,7 @@ class Commands:
 
     def define(self, symb, val):
         # Command for defining new symbol
-        self.turn_handler.current_unit().var_data[symb] = val
+        self.turn_handler_interface.current_unit().var_data[symb] = val
         return True
 
     @staticmethod
