@@ -16,7 +16,7 @@ class TestInterpreter(unittest.TestCase):
         self.cmd = cmd.Commands(self.board, self.turn_handler)
 
         # The interpreter is mostly static so we can use one instance for all the tests
-        self.interpreter = interpreter.Interpreter(self.turn_handler, self.cmd)
+        self.interpreter = interpreter.Interpreter(self.cmd)
 
     def test_is_number(self):
         # Test is_number method
@@ -99,6 +99,8 @@ class TestInterpreter(unittest.TestCase):
         # This method looks at the current unit (as determined by the turn handler) and returns the value of the
         # provided symbol. If the symbol has not been defined, it raises an exception
         self.board.spawn_unit(self.players[0], [0, 0])
+        unit = self.players[0].units.pop()
+        self.interpreter.set_context(unit.var_data)
         with self.assertRaises(Exception):
             self.interpreter.get_symbol_value("x")
         self.interpreter.analyze("define(x, 5)")()
@@ -112,6 +114,8 @@ class TestInterpreter(unittest.TestCase):
         # in test_cmd, here we need only test that the reduction of lambda functions to numbers and symbols (and then
         # symbols->numbers) is done correctly
         self.board.spawn_unit(self.players[0], [0, 0])
+        unit = self.players[0].units.pop()
+        self.interpreter.set_context(unit.var_data)
 
         # Test simple number arguments
         test_cmd = "add"
@@ -131,6 +135,8 @@ class TestInterpreter(unittest.TestCase):
         # be reduced to numbers/symbols, only the second argument is fully resolved. If the first argument is a symbol,
         # it remains one.
         self.board.spawn_unit(self.players[0], [0, 0])
+        unit = self.players[0].units.pop()
+        self.interpreter.set_context(unit.var_data)
 
         # Test simple number arguments
         test_args = [lambda: "x", lambda: 5]
@@ -158,6 +164,8 @@ class TestInterpreter(unittest.TestCase):
         # commands. Essentially this test checks that the syntax of the programming language used for the bots behaves
         # as desired.
         self.board.spawn_unit(self.players[0], [0, 0])
+        unit = self.players[0].units.pop()
+        self.interpreter.set_context(unit.var_data)
         # Test primitives
         self.assertEqual(self.interpreter.analyze("-3")(), -3)
         self.assertEqual(self.interpreter.analyze("test")(), "test")
