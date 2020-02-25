@@ -12,9 +12,9 @@ def critical_action(func):
     # to act (i.e. not in the middle of spawning etc)
     @wraps(func)
     def decorated(self, *args, **kwargs):
-        if self.turn_handler.current_unit().can_act() is False:
+        if self.turn_handler_interface.current_unit().can_act() is False:
             return False  # Could not perform action
-        self.turn_handler.current_unit().critical_action_performed()
+        self.turn_handler_interface.current_unit().critical_action_performed()
         return func(self, *args, **kwargs)
     return decorated
 

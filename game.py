@@ -48,7 +48,7 @@ class Game:
         self.board = board.Board(self.turn_handler, self.players,
                                  self.board_size, self.unit_limit_pct)  # Board and units
         self.user_commands = cmd.Commands(self.board, turn_handler.TurnHandlerInterface(self.turn_handler))
-        self.interpreter = interpreter.Interpreter(self.turn_handler, self.user_commands)
+        self.interpreter = interpreter.Interpreter(self.user_commands)
 
         # CONFIGURE LOGGER
         self.configure_logger()
@@ -96,8 +96,10 @@ class Game:
         return self.turn_handler.turn_number >= self.turn_limit
 
     def turn(self):
-        # Start turn (resetting all relevant state variables), execute script for current acting unit, and end turn
+        # Start turn (resetting all relevant state variables), set context for interpreter, execute script for current
+        # acting unit, and end turn
         self.turn_handler.start_turn()
+        self.interpreter.set_context(self.turn_handler.current_unit().current_unit.var_data)
         self.turn_handler.current_player().command_script()
         self.turn_handler.end_turn()
         self.board.print_board()

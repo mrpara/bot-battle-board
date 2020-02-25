@@ -4,9 +4,12 @@ from cmd import CommandsInspector
 
 class Interpreter:
     # This class handles parsing and analysis of user input
-    def __init__(self, turn_handler, commands):
-        self.turn_handler = turn_handler
+    def __init__(self, commands):
         self.commands = commands
+        self.__symbol_var_dict = None
+
+    def set_context(self, symbol_var_dict):
+        self.__symbol_var_dict = symbol_var_dict
 
     @staticmethod
     def is_number(expr):
@@ -102,7 +105,7 @@ class Interpreter:
         # Defined symbol values are saved on a per-unit basis, so the value is always taken from the dictionary
         # of the "current unit", which is determined by the turn handler
         try:
-            return self.turn_handler.current_unit().var_data[expr]
+            return self.__symbol_var_dict[expr]
         except KeyError:
             raise Exception("Undefined symbol " + expr)
 
