@@ -14,7 +14,7 @@ def critical_action(func):
     def decorated(self, *args, **kwargs):
         if self.turn_handler.current_unit().can_act() is False:
             return False  # Could not perform action
-        self.turn_handler.current_unit().perform_critical_action()
+        self.turn_handler.current_unit().critical_action_performed()
         return func(self, *args, **kwargs)
     return decorated
 

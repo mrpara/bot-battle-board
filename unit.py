@@ -111,6 +111,6 @@ class Unit:
                and self.charge_timer == 0 \
                and self.performed_critical_action is False
 
-    def perform_critical_action(self):
+    def critical_action_performed(self):
         # Setter for critical action
         self.performed_critical_action = True
