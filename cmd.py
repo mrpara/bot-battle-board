@@ -1,6 +1,7 @@
 import inspect
 from functools import wraps
 import logging
+from custom_logger_levels import LoggerLevels
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -81,20 +82,22 @@ class Commands:
         # in an adjacent free tile.
         self.turn_handler_interface.current_unit().set_spawn(3)
         unit = self.turn_handler_interface.current_unit()
-        logger.log(10, "Setting spawn for unit " + str(unit.id) + " belonging to player "
+        logger.log(LoggerLevels.ActionMessage, "Setting spawn for unit " + str(unit.id) + " belonging to player "
                    + str(unit.player.id) + " in 3 turns")
         return True  # Performed action
 
     @critical_action
     def wait(self):
         # Forfeit turn
-        logger.log(10, "Unit " + str(self.turn_handler_interface.current_unit().id) + " has forfeited its turn")
+        logger.log(LoggerLevels.ActionMessage, "Unit "
+                   + str(self.turn_handler_interface.current_unit().id) + " has forfeited its turn")
         return True  # Performed action
 
     @critical_action
     def defend(self):
         # Unit goes into defense mode (will block up to one attack until next turn)
-        logger.log(10, "Unit " + str(self.turn_handler_interface.current_unit().id) + " is defending")
+        logger.log(LoggerLevels.ActionMessage, "Unit "
+                   + str(self.turn_handler_interface.current_unit().id) + " is defending")
         self.turn_handler_interface.current_unit().defend()
         return True  # Performed action
 
@@ -203,4 +206,4 @@ class Commands:
 
     @staticmethod
     def prnt(a):
-        logger.log(10, str(a))
+        logger.log(LoggerLevels.ActionMessage, str(a))

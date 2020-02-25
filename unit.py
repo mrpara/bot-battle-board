@@ -1,4 +1,5 @@
 import logging
+from custom_logger_levels import LoggerLevels
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class Unit:
     def decrement_hp(self, dmg):
         # Reduce hp, check if unit dies (return True if it does, False otherwise - for testing purposes)
         self.hp -= dmg
-        logger.log(10, "Unit " + str(self.id) + " took " + str(dmg) + " damage")
+        logger.log(LoggerLevels.ActionMessage, "Unit " + str(self.id) + " took " + str(dmg) + " damage")
         if self.hp <= 0:
             self.kill()
             return True
@@ -60,7 +61,7 @@ class Unit:
     def kill(self):
         # Despawn unit from board_matrix
         self.board.despawn_unit(self)
-        logger.log(10, "Unit " + str(self.id) + " destroyed")
+        logger.log(LoggerLevels.ActionMessage, "Unit " + str(self.id) + " destroyed")
 
     def defend(self):
         # Enter defense mode (unit will block next attack against it)
@@ -75,7 +76,7 @@ class Unit:
         if num_turns == 0:
             self.attack(1)
         else:
-            logger.log(10, "Unit " + str(self.id) + " is charging an attack!")
+            logger.log(LoggerLevels.ActionMessage, "Unit " + str(self.id) + " is charging an attack!")
             self.charge_timer = num_turns
 
     def decrement_charge_timer_and_attack_if_ready(self):
@@ -93,7 +94,7 @@ class Unit:
         # Otherwise, unit hp is decremented
         if self.defending:
             self.defending = False
-            logger.log(10, "Unit " + str(self.id) + " defense broken")
+            logger.log(LoggerLevels.ActionMessage, "Unit " + str(self.id) + " defense broken")
             return
         self.decrement_hp(dmg)
 

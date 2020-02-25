@@ -5,6 +5,7 @@ import player
 import cmd
 import argparse
 import logging
+from custom_logger_levels import LoggerLevels
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -15,13 +16,12 @@ class Game:
                  board_size=None,
                  turn_limit=10000,
                  unit_limit_pct=0.05,
-                 log_level=10,
+                 log_level=LoggerLevels.ActionMessage,
                  write_to_file=False,
                  log_path="log.txt"):
 
         if board_size is None:  # Avoid mutable default argument
             board_size = [20, 20]
-
         # Verify arguments
         if len(filepaths) < 2:
             raise Exception("Game requires at least two players. "
@@ -37,8 +37,10 @@ class Game:
         self.turn_limit = turn_limit
         self.unit_limit_pct = unit_limit_pct  # The maximum number of allowed units per player, as a percentage
         # of board capacity
-        self.log_level = log_level  # Level of log info. Use 30 to only display win/lose messages, 20 to also display
-        # turn numbers and the board, and 10 to also display action messages
+        self.log_level = log_level  # Level of log info.
+        # Use LoggerLevels.PrimaryInformation to only display win/lose messages,
+        # LoggerLevels.SecondaryInformation to also display  turn numbers and the board, and
+        # LoggerLevels.ActionMessage to also display action messages
         self.write_to_file = write_to_file
         self.log_path = log_path
 
@@ -111,7 +113,7 @@ class Game:
         for player_id, player_r in self.players.items():
             if player_r.num_units() == 0:
                 players_to_remove.append(player_id)
-                logger.log(30, "Player " + str(player_id) + " eliminated")
+                logger.log(LoggerLevels.PrimaryInformation, "Player " + str(player_id) + " eliminated")
         for player_id in players_to_remove:
             del self.players[player_id]
 
@@ -122,7 +124,7 @@ class Game:
 
         if self.one_player_left():
             winning_player = list(self.players.values())[0]
-            logger.log(30, "Player " + str(winning_player.id) + " has won the game")
+            logger.log(LoggerLevels.PrimaryInformation, "Player " + str(winning_player.id) + " has won the game")
             return winning_player.id
 
         #  Make a player id -> remaining units dict, check max value, then get all player ids with this max value
@@ -132,13 +134,13 @@ class Game:
                         if self.players[player_id].num_units() == max_num_units_left]
 
         if len(tied_players) == 1:
-            logger.log(30, "Turn limit reached, player " + str(tied_players[0].id) + " wins with "
-                       + str(max_num_units_left) + " units remaining")
+            logger.log(LoggerLevels.PrimaryInformation, "Turn limit reached, player " + str(tied_players[0].id)
+                       + " wins with " + str(max_num_units_left) + " units remaining")
             return tied_players[0].id
 
         tied_player_ids = [t_player.id for t_player in tied_players]
-        logger.log(30, "Turn limit reached, players " + str(tied_player_ids) + " are tied with "
-                   + str(max_num_units_left) + " units remaining")
+        logger.log(LoggerLevels.PrimaryInformation, "Turn limit reached, players " + str(tied_player_ids)
+                   + " are tied with " + str(max_num_units_left) + " units remaining")
         return tied_player_ids
 
     def one_player_left(self):

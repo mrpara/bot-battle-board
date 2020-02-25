@@ -1,4 +1,5 @@
 from collections import deque
+from custom_logger_levels import LoggerLevels
 import logging
 
 # Setup logging
@@ -20,8 +21,8 @@ class TurnHandler:
 
     def start_turn(self):
         self.turn_number += 1
-        logger.log(20, "Turn number " + str(self.turn_number))
-        logger.log(20, "Acting unit: " + str(self.current_unit().id))
+        logger.log(LoggerLevels.SecondaryInformation, "Turn number " + str(self.turn_number))
+        logger.log(LoggerLevels.SecondaryInformation, "Acting unit: " + str(self.current_unit().id))
         self.current_unit().on_new_turn()
 
     def end_turn(self):

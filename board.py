@@ -5,6 +5,7 @@ from random import choice
 from math import ceil
 from random import randint
 import logging
+from custom_logger_levels import LoggerLevels
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -52,7 +53,7 @@ class Board:
             raise Exception("Cannot spawn unit in location " + str(loc) + " since it is occupied")
 
         if player.num_units() >= self.unit_limit:
-            logger.log(10, "Player " + str(player.id)
+            logger.log(LoggerLevels.ActionMessage, "Player " + str(player.id)
                        + " attempted to spawn new unit, but has reached the spawn limit.")
             return False  # Couldn't spawn new unit
 
@@ -62,7 +63,8 @@ class Board:
         self.board_matrix[loc] = new_unit
         self.turn_handler.add_to_queue(new_unit)
         player.units.add(new_unit)
-        logger.log(10, "New unit " + str(unit_id) + " spawned by player " + str(player.id) + " in location " + str(loc))
+        logger.log(LoggerLevels.ActionMessage, "New unit " + str(unit_id) + " spawned by player "
+                   + str(player.id) + " in location " + str(loc))
         return True  # Spawned new unit
 
     def despawn_unit(self, unit):
@@ -91,7 +93,8 @@ class Board:
         new_loc = self.get_free_adjacent_loc(current_loc)
         if new_loc is None:
             return
-        logger.log(10, "Unit " + str(unit.id) + " moved from " + str(current_loc) + " to " + str(new_loc))
+        logger.log(LoggerLevels.ActionMessage, "Unit " + str(unit.id) + " moved from "
+                   + str(current_loc) + " to " + str(new_loc))
         self.move_unit(unit, new_loc)
 
     ####################################################################################################################
@@ -126,9 +129,10 @@ class Board:
     def attack_adjacent_enemy(self, unit, dmg):
         enemy_unit = self.get_adjacent_enemy_unit(unit)
         if enemy_unit is None:
-            logger.log(10, "Unit " + str(unit.id) + " tried to attack, but no enemy units in range")
+            logger.log(LoggerLevels.ActionMessage, "Unit " + str(unit.id)
+                       + " tried to attack, but no enemy units in range")
             return False  # fail state
-        logger.log(10, "Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
+        logger.log(LoggerLevels.ActionMessage, "Unit " + str(unit.id) + " attacked unit " + str(enemy_unit.id))
         enemy_unit.damage(dmg)
         return True  # success
 
@@ -238,4 +242,4 @@ class Board:
         fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
         table = [fmt.format(*row) for row in s]
         table_formatted = '\n'.join(table)
-        logger.log(20, table_formatted)
+        logger.log(LoggerLevels.SecondaryInformation, table_formatted)
