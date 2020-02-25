@@ -1,5 +1,5 @@
 from typing import List
-from typing import Union
+from typing import Optional
 from unit import Unit
 from random import choice
 from math import ceil
@@ -14,7 +14,7 @@ logger.setLevel(1)
 class BoardMatrix:
     # A wrapper class for the matrix of elements on the board, which takes as an index a list of two values (x index
     # and y index)
-    board_matrix: List[List[Union[Unit, None]]]  # Type hinting
+    board_matrix: List[List[Optional[Unit]]]  # Type hinting
 
     def __init__(self, size):
         self.board_matrix = [[None for _ in range(size[1])] for _ in range(size[0])]
@@ -46,7 +46,7 @@ class Board:
     # Board manipulation
     ####################################################################################################################
 
-    def spawn_unit(self, player, loc, unit_hp = 3):
+    def spawn_unit(self, player, loc, unit_hp=3):
         # Add new unit to board
         if not self.is_free(loc):
             raise Exception("Cannot spawn unit in location " + str(loc) + " since it is occupied")
@@ -112,15 +112,15 @@ class Board:
         return sum([t_player.num_units() for t_player_id, t_player in self.players.items() if t_player != player])
 
     def distance_from_closest_ally(self, unit):
-        dist = [self.board_size[0] + self.board_size[1]]
-        for ally in self.get_all_allies(unit):
-            dist.append(self.distance_between_units(unit, ally))
-        return min(dist)
+        return self.distance_from_closest_in_collection(unit, self.get_all_allies(unit))
 
     def distance_from_closest_enemy(self, unit):
+        return self.distance_from_closest_in_collection(unit, self.get_all_enemies(unit))
+
+    def distance_from_closest_in_collection(self, unit, collection):
         dist = [self.board_size[0] + self.board_size[1]]
-        for enemy in self.get_all_enemies(unit):
-            dist.append(self.distance_between_units(unit, enemy))
+        for t_unit in collection:
+            dist.append(self.distance_between_units(unit, t_unit))
         return min(dist)
 
     def attack_adjacent_enemy(self, unit, dmg):

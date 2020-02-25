@@ -99,7 +99,7 @@ class Game:
         # Start turn (resetting all relevant state variables), set context for interpreter, execute script for current
         # acting unit, and end turn
         self.turn_handler.start_turn()
-        self.interpreter.set_context(self.turn_handler.current_unit().current_unit.var_data)
+        self.interpreter.set_context(self.turn_handler.current_unit().var_data)
         self.turn_handler.current_player().command_script()
         self.turn_handler.end_turn()
         self.board.print_board()
