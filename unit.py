@@ -88,6 +88,7 @@ class Unit:
                 dmg = (self.charge_strength + 1) * (self.charge_strength + 2) / 2
                 self.attack(int(dmg))
                 self.charge_strength = 0
+                self.critical_action_performed()
 
     def damage(self, dmg):
         # Unit is under attack for dmg points of damage. Check if unit is defending. If it is, break defense.
